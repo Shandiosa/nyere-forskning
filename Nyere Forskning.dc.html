@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/consort-design-system-5951af1e-b505-44b2-aebc-b9f7d27289b5/colors_and_type.css">
+  <script src="_ds/consort-design-system-5951af1e-b505-44b2-aebc-b9f7d27289b5/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; background: #F5F5F5; }
+    input, select, textarea, button { font-family: 'Segoe UI', system-ui, sans-serif; }
+    input[type="range"] { accent-color: #0BCD75; }
+    ::placeholder { color: #9A9A9A; }
+  </style>
+</helmet>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Innlogging" style="min-height:100vh;background:#0D0D0D;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;font-family:var(--font-body)">
+    <img src="assets/dots-kvadrat.png" alt="" style="position:absolute;top:-60px;right:-60px;width:300px;opacity:0.9">
+    <img src="assets/dots-tripptrapp.png" alt="" style="position:absolute;bottom:40px;left:40px;width:220px;opacity:0.75">
+    <div style="width:440px;max-width:92vw;display:flex;flex-direction:column;gap:28px;position:relative;padding:48px 0">
+      <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+        <img src="assets/logo-tree.png" alt="Consort" style="width:56px;height:56px;border-radius:9999px">
+        <div>
+          <div style="font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#0BCD75">Consort intern · Strengt uvitenskapelig</div>
+          <div style="font-family:var(--font-display);font-weight:900;font-size:52px;line-height:1.1;letter-spacing:-0.03em;color:#FFFFFF;margin-top:8px">Nyere forskning</div>
+          <p style="color:#9A9A9A;margin:12px 0 0;font-size:16px;line-height:1.7">Avstemninger, skalaer og gjettekonkurranser med tvilsom metodikk. Logg inn og bidra til vitenskapen.</p>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:13px;font-weight:600;color:#4A4A4A">Epost</div>
+          <input type="email" placeholder="fornavn@consort.no" value="{{ loginEmail }}" onChange="{{ setLoginEmail }}" onKeyDown="{{ loginKey }}" style="padding:12px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:15px;outline-color:#0BCD75">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:13px;font-weight:600;color:#4A4A4A">Passord</div>
+          <input type="password" placeholder="••••••••" value="{{ loginPass }}" onChange="{{ setLoginPass }}" onKeyDown="{{ loginKey }}" style="padding:12px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:15px;outline-color:#0BCD75">
+        </div>
+        <sc-if value="{{ hasLoginError }}">
+          <div style="background:rgba(255,195,53,0.15);border:1px solid #FFC335;border-radius:8px;padding:10px 14px;font-size:14px;color:#0D0D0D">{{ loginError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="margin-top:4px;padding:14px;border:none;border-radius:8px;background:linear-gradient(90deg,#0BCD75,#0C8BE2);color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:pointer;transition:all 0.2s ease-out;box-shadow:0 4px 20px rgba(11,205,117,0.25)" style-hover="filter:brightness(1.1);transform:translateY(-2px)" style-active="transform:translateY(1px) scale(0.98)">Logg inn</button>
+        <sc-if value="{{ demoHint }}">
+          <div style="font-size:12px;color:#9A9A9A;line-height:1.5">Prototype: logg inn med hvilken som helst @consort.no-adresse. <span style="font-weight:600;color:#4A4A4A">holmen@consort.no</span> gir admin-tilgang.</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isOnboard }}">
+  <div data-screen-label="Førstegangsregistrering" style="min-height:100vh;background:#0D0D0D;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;font-family:var(--font-body)">
+    <img src="assets/dots-tripptrapp.png" alt="" style="position:absolute;bottom:40px;right:40px;width:220px;opacity:0.75">
+    <div style="width:520px;max-width:92vw;display:flex;flex-direction:column;gap:24px;position:relative;padding:48px 0">
+      <div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#0BCD75">Nesten i mål</div>
+        <div style="font-family:var(--font-display);font-weight:900;font-size:40px;line-height:1.1;letter-spacing:-0.03em;color:#FFFFFF;margin-top:8px">Fortell vitenskapen litt om deg</div>
+        <p style="color:#9A9A9A;margin:12px 0 0;font-size:15px;line-height:1.7">Brukes kun til anonym nedbrytning av resultater, aldri koblet til enkeltsvar.</p>
+      </div>
+      <div style="background:#FFFFFF;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:22px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:#4A4A4A">Avdeling</div>
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ obAvdOpts }}" as="o" hint-placeholder-count="3">
+              <div onClick="{{ o.pick }}" style="flex:1;text-align:center;padding:12px 8px;border-radius:8px;border:2px solid {{ o.bc }};background:{{ o.bg }};font-size:14px;font-weight:{{ o.fw }};color:#0D0D0D;cursor:pointer;transition:all 0.2s ease-out" style-hover="border-color:#0BCD75">{{ o.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:#4A4A4A">Fødselsår</div>
+          <select value="{{ obAar }}" onChange="{{ setObAar }}" style="padding:12px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:15px;background:#FFFFFF;cursor:pointer;outline-color:#0BCD75">
+            <option value="">Velg årstall…</option>
+            <sc-for list="{{ obAarOpts }}" as="a">
+              <option value="{{ a }}">{{ a }}</option>
+            </sc-for>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:#4A4A4A">Kjønn</div>
+          <div style="display:flex;gap:10px">
+            <sc-for list="{{ obKjonnOpts }}" as="o" hint-placeholder-count="3">
+              <div onClick="{{ o.pick }}" style="flex:1;text-align:center;padding:12px 8px;border-radius:8px;border:2px solid {{ o.bc }};background:{{ o.bg }};font-size:14px;font-weight:{{ o.fw }};color:#0D0D0D;cursor:pointer;transition:all 0.2s ease-out" style-hover="border-color:#0BCD75">{{ o.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <button onClick="{{ obSubmit }}" style="padding:14px;border:none;border-radius:8px;background:{{ obBg }};color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:{{ obCur }};transition:all 0.2s ease-out" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px) scale(0.98)">Start forskningen</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isApp }}">
+  <div style="min-height:100vh;background:#F5F5F5;font-family:var(--font-body);display:flex;flex-direction:column">
+
+    <header style="background:#FFFFFF;border-bottom:1px solid #E0E0E0;position:sticky;top:0;z-index:20">
+      <div style="max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:16px">
+        <img src="assets/logo-horizontal.png" alt="Consort" style="height:26px">
+        <div style="width:1px;height:24px;background:#E0E0E0"></div>
+        <div onClick="{{ goHome }}" style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:-0.02em;color:#0D0D0D;cursor:pointer">Nyere forskning</div>
+        <div style="flex:1"></div>
+        <nav style="display:flex;align-items:center;gap:8px">
+          <button onClick="{{ goHome }}" style="padding:8px 14px;border:none;background:transparent;border-radius:9999px;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="color:#0C8BE2;background:#F5F5F5">Forside</button>
+          <button onClick="{{ goFunn }}" style="padding:8px 14px;border:none;background:transparent;border-radius:9999px;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="color:#0C8BE2;background:#F5F5F5">Sånn er Consort</button>
+          <sc-if value="{{ isAdminUser }}">
+            <button onClick="{{ goAdmin }}" style="padding:8px 14px;border:none;background:transparent;border-radius:9999px;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="color:#0C8BE2;background:#F5F5F5">Kontrollrommet</button>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:#F5F5F5;border-radius:9999px">
+            <div style="width:8px;height:8px;border-radius:9999px;background:#0BCD75"></div>
+            <div style="font-size:13px;font-weight:600;color:#0D0D0D">{{ meNavn }} · {{ meAvd }}</div>
+          </div>
+          <button onClick="{{ logout }}" style="padding:8px 14px;border:1px solid #E0E0E0;background:#FFFFFF;border-radius:9999px;font-size:13px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="border-color:#0D0D0D;color:#0D0D0D">Logg ut</button>
+        </nav>
+      </div>
+    </header>
+
+    <sc-if value="{{ isHome }}">
+      <sc-if value="{{ variantKort }}">
+        <main data-screen-label="Forside – kortliste" style="max-width:1200px;width:100%;box-sizing:border-box;margin:0 auto;padding:56px 24px 96px">
+          <div style="font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#0C8BE2">{{ dagens }}</div>
+          <h1 style="margin:10px 0 0;font-size:52px">Hei, {{ meNavn }}.<br>Vitenskapen trenger deg.</h1>
+          <p style="color:#4A4A4A;max-width:560px;margin:16px 0 0">Svar på pågående studier, eller bla i publiserte funn. Alt er anonymt, bortsett fra konkurransene: der står selvsagt heder og ære på spill.</p>
+          <img src="assets/dots-linje.png" alt="" style="height:12px;margin:36px 0 40px;display:block">
+
+          <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:#0D0D0D;margin-bottom:20px">Pågående studier</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px">
+            <sc-for list="{{ activeCards }}" as="c" hint-placeholder-count="3">
+              <div onClick="{{ c.open }}" style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:28px;cursor:pointer;display:flex;flex-direction:column;gap:16px;transition:all 0.2s ease-out;box-shadow:0 1px 3px rgba(0,0,0,0.10)" style-hover="transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="padding:4px 10px;border-radius:4px;background:{{ c.bBg }};color:{{ c.bFg }};font-size:11px;font-weight:700;letter-spacing:0.08em">{{ c.badge }}</div>
+                  <div style="font-size:13px;color:#9A9A9A">{{ c.nTxt }}</div>
+                </div>
+                <div style="font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1.25;color:#0D0D0D;flex:1">{{ c.tittel }}</div>
+                <div style="font-size:14px;font-weight:700;color:#0BCD75">{{ c.cta }} →</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ hasClosed }}">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:#0D0D0D;margin:56px 0 20px">Publiserte funn</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px">
+              <sc-for list="{{ closedCards }}" as="c" hint-placeholder-count="2">
+                <div onClick="{{ c.open }}" style="background:#0D0D0D;border-radius:12px;padding:28px;cursor:pointer;display:flex;flex-direction:column;gap:14px;transition:all 0.2s ease-out" style-hover="transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div style="padding:4px 10px;border-radius:4px;background:{{ c.bBg }};color:{{ c.bFg }};font-size:11px;font-weight:700;letter-spacing:0.08em">{{ c.badge }}</div>
+                    <div style="font-size:13px;color:#9A9A9A">{{ c.nTxt }}</div>
+                  </div>
+                  <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FFC335">Nyere forskning viser</div>
+                  <div style="font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1.25;color:#FFFFFF;flex:1">{{ c.funn }}</div>
+                  <div style="font-size:14px;font-weight:700;color:#0BCD75">{{ c.cta }} →</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </main>
+      </sc-if>
+
+      <sc-if value="{{ variantTabloid }}">
+        <main data-screen-label="Forside – tabloid" style="background:#0D0D0D;flex:1;padding:56px 24px 96px">
+          <div style="max-width:960px;margin:0 auto">
+            <div style="display:flex;flex-direction:column;gap:12px;border-bottom:4px solid #FFFFFF;padding-bottom:24px">
+              <div style="font-family:var(--font-display);font-weight:900;font-size:72px;line-height:1;letter-spacing:-0.03em;color:#FFFFFF">NYERE<br><span style="background:linear-gradient(90deg,#0BCD75,#0C8BE2);-webkit-background-clip:text;background-clip:text;color:transparent">FORSKNING</span></div>
+              <div style="display:flex;gap:20px;font-size:13px;color:#9A9A9A;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">
+                <div>{{ dagens }}</div>
+                <div>Opplag: hele Consort</div>
+                <div>Løssalg: én kaffe</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ activeCards }}" as="c" hint-placeholder-count="3">
+                <div onClick="{{ c.open }}" style="display:flex;flex-direction:column;gap:12px;padding:32px 0;border-bottom:1px solid #2E2E2E;cursor:pointer">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div style="padding:4px 10px;border-radius:4px;background:#FFC335;color:#0D0D0D;font-size:11px;font-weight:700;letter-spacing:0.08em">SISTE</div>
+                    <div style="padding:4px 10px;border-radius:4px;background:{{ c.bBg }};color:{{ c.bFg }};font-size:11px;font-weight:700;letter-spacing:0.08em">{{ c.badge }}</div>
+                  </div>
+                  <div style="font-family:var(--font-display);font-weight:900;font-size:40px;line-height:1.1;letter-spacing:-0.03em;color:#FFFFFF;transition:color 0.2s ease-out" style-hover="color:#0BCD75">{{ c.tittel }}</div>
+                  <div style="display:flex;gap:16px;font-size:14px;color:#9A9A9A">
+                    <div>{{ c.nTxt }}</div>
+                    <div style="color:#0BCD75;font-weight:700">{{ c.cta }} →</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ hasClosed }}">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#9A9A9A;margin:40px 0 8px;text-transform:uppercase;letter-spacing:0.1em">Arkivet · Publiserte funn</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ closedCards }}" as="c" hint-placeholder-count="2">
+                  <div onClick="{{ c.open }}" style="display:flex;flex-direction:column;gap:8px;padding:24px 0;border-bottom:1px solid #2E2E2E;cursor:pointer">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FFC335">Nyere forskning viser</div>
+                    <div style="font-family:var(--font-display);font-weight:800;font-size:24px;line-height:1.2;color:#FFFFFF;transition:color 0.2s ease-out" style-hover="color:#0BCD75">{{ c.funn }}</div>
+                    <div style="font-size:13px;color:#9A9A9A">{{ c.nTxt }} · {{ c.cta }} →</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </main>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ isPoll }}">
+      <main data-screen-label="Besvarelse" style="max-width:720px;width:100%;box-sizing:border-box;margin:0 auto;padding:48px 24px 96px">
+        <button onClick="{{ goHome }}" style="border:none;background:transparent;padding:0;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="color:#0C8BE2">← Tilbake til forsiden</button>
+        <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:36px;margin-top:20px;display:flex;flex-direction:column;gap:24px;box-shadow:0 4px 16px rgba(0,0,0,0.12)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="padding:4px 10px;border-radius:4px;background:{{ poll.bBg }};color:{{ poll.bFg }};font-size:11px;font-weight:700;letter-spacing:0.08em">{{ poll.badge }}</div>
+          </div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.2;color:#0D0D0D;margin:0">{{ poll.tittel }}</div>
+
+          <sc-if value="{{ poll.hasBilde }}">
+            <img src="{{ poll.bilde }}" alt="" style="width:100%;border-radius:8px;display:block;border:1px solid #E0E0E0">
+          </sc-if>
+
+          <sc-if value="{{ poll.isF }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ poll.options }}" as="o" hint-placeholder-count="4">
+                <div onClick="{{ o.pick }}" style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:8px;border:2px solid {{ o.bc }};background:{{ o.bg }};cursor:pointer;transition:all 0.2s ease-out" style-hover="border-color:#0BCD75">
+                  <div style="width:20px;height:20px;border-radius:9999px;border:2px solid {{ o.bc }};background:{{ o.dot }};box-sizing:border-box;flex-shrink:0"></div>
+                  <div style="font-size:16px;font-weight:600;color:#0D0D0D">{{ o.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ poll.isS }}">
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <div style="font-family:var(--font-display);font-weight:900;font-size:72px;line-height:1;text-align:center;background:linear-gradient(90deg,#0BCD75,#0C8BE2);-webkit-background-clip:text;background-clip:text;color:transparent">{{ skalaVal }}</div>
+              <input type="range" min="1" max="10" step="1" value="{{ skalaVal }}" onChange="{{ setSkala }}" style="width:100%;cursor:pointer">
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:#9A9A9A">
+                <div>1 · {{ poll.lo }}</div>
+                <div>10 · {{ poll.hi }}</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ poll.isG }}">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;align-items:center;gap:12px">
+                <input type="number" placeholder="Ditt kvalifiserte estimat" value="{{ gjettVal }}" onChange="{{ setGjett }}" style="flex:1;padding:16px;border-radius:8px;border:2px solid #E0E0E0;font-size:20px;font-weight:700;outline-color:#0BCD75">
+                <div style="font-size:16px;font-weight:600;color:#4A4A4A">{{ poll.enhet }}</div>
+              </div>
+              <div style="background:#F5F5F5;border-radius:8px;padding:12px 16px;font-size:14px;color:#4A4A4A">🏆 Premie: {{ poll.premie }}</div>
+            </div>
+          </sc-if>
+
+          <button onClick="{{ poll.submit }}" style="padding:14px;border:none;border-radius:8px;background:{{ poll.subBg }};color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:16px;cursor:{{ poll.subCur }};transition:all 0.2s ease-out" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px) scale(0.98)">Send inn svar</button>
+          <div style="font-size:12px;color:#9A9A9A;line-height:1.5">{{ poll.anonNote }}</div>
+        </div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isResults }}">
+      <main data-screen-label="Resultater" style="max-width:840px;width:100%;box-sizing:border-box;margin:0 auto;padding:48px 24px 96px;display:flex;flex-direction:column;gap:24px">
+        <div>
+          <button onClick="{{ res.back }}" style="border:none;background:transparent;padding:0;font-size:14px;font-weight:600;color:#4A4A4A;cursor:pointer" style-hover="color:#0C8BE2">← Tilbake til forsiden</button>
+        </div>
+
+        <div style="background:#FFC335;border-radius:12px;padding:36px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0D0D0D">Nyere forskning viser</div>
+          <div style="font-family:var(--font-display);font-weight:900;font-size:38px;line-height:1.1;letter-spacing:-0.03em;color:#0D0D0D">{{ res.headline }}</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+            <div style="padding:4px 10px;border-radius:4px;background:#0D0D0D;color:#FFFFFF;font-size:11px;font-weight:700;letter-spacing:0.08em">{{ res.badge }}</div>
+            <div style="font-size:13px;font-weight:600;color:#0D0D0D">{{ res.nTxt }} · p &lt; 0,05*</div>
+          </div>
+        </div>
+        <div style="font-size:14px;color:#6B6B6B;font-style:italic">Studien spurte: «{{ res.tittel }}»</div>
+
+        <sc-if value="{{ res.hasBilde }}">
+          <img src="{{ res.bilde }}" alt="" style="width:100%;border-radius:12px;display:block;border:1px solid #E0E0E0">
+        </sc-if>
+
+        <sc-if value="{{ res.showTabs }}">
+          <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:24px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <sc-for list="{{ res.tabs }}" as="t" hint-placeholder-count="4">
+                <button onClick="{{ t.sel }}" style="padding:8px 16px;border-radius:9999px;border:1px solid {{ t.bc }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s ease-out">{{ t.label }}</button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ res.isF }}">
+              <sc-if value="{{ res.isAlle }}">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <sc-for list="{{ res.rows }}" as="r" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <div style="display:flex;justify-content:space-between;font-size:14px">
+                        <div style="font-weight:600;color:#0D0D0D">{{ r.label }}</div>
+                        <div style="font-weight:700;color:#0D0D0D">{{ r.pct }} % <span style="color:#9A9A9A;font-weight:400">({{ r.count }})</span></div>
+                      </div>
+                      <div style="height:14px;background:#F5F5F5;border-radius:9999px;overflow:hidden">
+                        <div style="height:100%;width:{{ r.pct }}%;background:{{ r.color }};border-radius:9999px;transition:width 0.3s ease-out"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ res.notAlle }}">
+                <div style="display:flex;flex-direction:column;gap:18px">
+                  <sc-for list="{{ res.segRows }}" as="s" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <div style="display:flex;justify-content:space-between;font-size:14px">
+                        <div style="font-weight:700;color:#0D0D0D">{{ s.label }} <span style="color:#9A9A9A;font-weight:400">· {{ s.nTxt }}</span></div>
+                        <div style="color:#4A4A4A">Topp: <span style="font-weight:700">{{ s.top }}</span></div>
+                      </div>
+                      <div style="height:16px;background:#F5F5F5;border-radius:9999px;overflow:hidden;display:flex">
+                        <sc-for list="{{ s.stacks }}" as="st">
+                          <div style="height:100%;width:{{ st.pct }}%;background:{{ st.color }}"></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;padding-top:4px">
+                    <sc-for list="{{ res.legend }}" as="l">
+                      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4A4A4A">
+                        <div style="width:10px;height:10px;border-radius:2px;background:{{ l.color }}"></div>
+                        <div>{{ l.label }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ res.isS }}">
+              <sc-if value="{{ res.isAlle }}">
+                <div style="display:flex;flex-direction:column;gap:24px">
+                  <div style="display:flex;align-items:baseline;gap:12px">
+                    <div style="font-family:var(--font-display);font-weight:900;font-size:64px;line-height:1;background:linear-gradient(90deg,#0BCD75,#0C8BE2);-webkit-background-clip:text;background-clip:text;color:transparent">{{ res.avg }}</div>
+                    <div style="font-size:15px;color:#4A4A4A">i snitt, på en skala fra 1 ({{ res.lo }}) til 10 ({{ res.hi }})</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{ res.hist }}" as="h" hint-placeholder-count="10">
+                      <div style="display:flex;align-items:center;gap:12px">
+                        <div style="width:20px;text-align:right;font-size:13px;font-weight:700;color:#4A4A4A">{{ h.v }}</div>
+                        <div style="flex:1;height:12px;background:#F5F5F5;border-radius:9999px;overflow:hidden">
+                          <div style="height:100%;width:{{ h.w }}%;background:linear-gradient(90deg,#0BCD75,#0C8BE2);border-radius:9999px"></div>
+                        </div>
+                        <div style="width:24px;font-size:13px;color:#9A9A9A">{{ h.count }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ res.notAlle }}">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <sc-for list="{{ res.segAvg }}" as="s" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <div style="display:flex;justify-content:space-between;font-size:14px">
+                        <div style="font-weight:700;color:#0D0D0D">{{ s.label }} <span style="color:#9A9A9A;font-weight:400">· {{ s.nTxt }}</span></div>
+                        <div style="font-weight:700;color:#0D0D0D">{{ s.avg }}</div>
+                      </div>
+                      <div style="height:14px;background:#F5F5F5;border-radius:9999px;overflow:hidden">
+                        <div style="height:100%;width:{{ s.w }}%;background:linear-gradient(90deg,#0BCD75,#0C8BE2);border-radius:9999px"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ res.isGClosed }}">
+          <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:24px">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:120px;height:120px;border-radius:9999px;background:linear-gradient(135deg,#0BCD75,#0C8BE2);color:#FFFFFF;flex-shrink:0">
+                <div style="font-family:var(--font-display);font-weight:900;font-size:32px;line-height:1">{{ res.fasit }}</div>
+                <div style="font-size:12px;font-weight:600">{{ res.enhet }}</div>
+              </div>
+              <div>
+                <div style="font-family:var(--font-display);font-weight:800;font-size:22px;color:#0D0D0D">Fasit og ledertavle</div>
+                <div style="font-size:14px;color:#4A4A4A;margin-top:4px">Nærmest fasit vinner. Fornavn vises; dette er tross alt en konkurranse.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ res.board }}" as="b" hint-placeholder-count="5">
+                <div style="display:grid;grid-template-columns:44px 1fr auto auto;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;background:{{ b.bg }};color:{{ b.fg }};border:1px solid #E0E0E0">
+                  <div style="font-family:var(--font-display);font-weight:900;font-size:18px">{{ b.rankTxt }}</div>
+                  <div style="font-size:15px;font-weight:600">{{ b.navn }} <span style="opacity:0.6;font-weight:400">· {{ b.avd }}</span></div>
+                  <div style="font-size:14px;font-weight:700">{{ b.gjett }}</div>
+                  <div style="font-size:13px;opacity:0.7;width:64px;text-align:right">{{ b.diff }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ res.isGOpen }}">
+          <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:22px;color:#0D0D0D">Svaret ditt er registrert 🤫</div>
+            <div style="font-size:15px;color:#4A4A4A;line-height:1.7">Fasit avsløres når konkurransen lukkes. Premie: <span style="font-weight:700">{{ res.premie }}</span>. Disse har levert sitt kvalifiserte estimat:</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <sc-for list="{{ res.participants }}" as="p" hint-placeholder-count="5">
+                <div style="padding:6px 14px;border-radius:9999px;background:#F5F5F5;font-size:13px;font-weight:600;color:#0D0D0D">{{ p.navn }} · {{ p.avd }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="font-size:12px;color:#9A9A9A">* Ingen har regnet på p-verdien. Nedbrytning på kjønn, alder og avdeling er anonym og hentes fra brukerprofilen din.</div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isFunn }}">
+      <main data-screen-label="Sånn er Consort" style="max-width:840px;width:100%;box-sizing:border-box;margin:0 auto;padding:56px 24px 96px">
+        <div style="font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#0C8BE2">Akkumulert vitenskap</div>
+        <h1 style="margin:10px 0 0;font-size:52px">Sånn er Consort</h1>
+        <p style="color:#4A4A4A;max-width:560px;margin:16px 0 0">Historiske funn fra forskningsfronten, samlet på ett sted. Alt er selvsagt grundig dokumentert.*</p>
+        <img src="assets/dots-linje.png" alt="" style="height:12px;margin:36px 0 8px;display:block">
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ funnListe }}" as="f" hint-placeholder-count="5">
+            <div onClick="{{ f.open }}" style="display:flex;align-items:baseline;gap:20px;padding:22px 0;border-bottom:1px solid #E0E0E0">
+              <div style="width:96px;flex-shrink:0;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#0C8BE2">{{ f.mnd }}</div>
+              <div style="width:10px;height:10px;border-radius:9999px;background:linear-gradient(135deg,#0BCD75,#0C8BE2);flex-shrink:0;position:relative;top:-1px"></div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1.3;color:#0D0D0D">{{ f.tekst }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px;color:#9A9A9A;margin-top:20px">* Ingenting er grundig dokumentert.</div>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ isAdmin }}">
+      <main data-screen-label="Admin – kontrollrommet" style="max-width:1200px;width:100%;box-sizing:border-box;margin:0 auto;padding:48px 24px 96px;display:flex;flex-direction:column;gap:28px">
+        <div>
+          <div style="font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#0C8BE2">Kun for forskningsledelsen</div>
+          <h2 style="margin:8px 0 0">Kontrollrommet</h2>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ admin.tabPolls }}" style="padding:10px 20px;border-radius:9999px;border:1px solid {{ admin.tpBc }};background:{{ admin.tpBg }};color:{{ admin.tpFg }};font-size:14px;font-weight:700;cursor:pointer">Undersøkelser</button>
+          <button onClick="{{ admin.tabUsers }}" style="padding:10px 20px;border-radius:9999px;border:1px solid {{ admin.tuBc }};background:{{ admin.tuBg }};color:{{ admin.tuFg }};font-size:14px;font-weight:700;cursor:pointer">Brukere</button>
+        </div>
+
+        <sc-if value="{{ admin.isPolls }}">
+          <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ admin.polls }}" as="p" hint-placeholder-count="4">
+                <div onClick="{{ p.view }}" style="background:#FFFFFF;border:2px solid {{ p.bc }};border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:all 0.2s ease-out" style-hover="box-shadow:0 4px 16px rgba(0,0,0,0.12)">
+                  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <div style="padding:4px 10px;border-radius:4px;background:{{ p.bBg }};color:{{ p.bFg }};font-size:11px;font-weight:700;letter-spacing:0.08em">{{ p.badge }}</div>
+                    <div style="padding:4px 10px;border-radius:9999px;background:{{ p.stBg }};color:{{ p.stFg }};font-size:11px;font-weight:700">{{ p.statusTxt }}</div>
+                    <div style="font-size:13px;color:#9A9A9A">{{ p.nTxt }}</div>
+                  </div>
+                  <div style="font-family:var(--font-display);font-weight:800;font-size:17px;line-height:1.3;color:#0D0D0D">{{ p.tittel }}</div>
+                  <div style="display:flex;gap:8px">
+                    <button onClick="{{ p.toggle }}" style="padding:7px 14px;border-radius:8px;border:1px solid #0D0D0D;background:#FFFFFF;color:#0D0D0D;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#0D0D0D;color:#FFFFFF">{{ p.toggleTxt }}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:24px;position:sticky;top:88px">
+              <div style="background:#0D0D0D;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="width:8px;height:8px;border-radius:9999px;background:#0BCD75"></div>
+                  <div style="font-family:var(--font-display);font-weight:800;font-size:16px;color:#FFFFFF">Innkomne svar live</div>
+                </div>
+                <div style="font-size:13px;color:#9A9A9A;line-height:1.5">{{ admin.selTittel }}, {{ admin.selN }}</div>
+                <sc-if value="{{ admin.liveEmpty }}">
+                  <div style="font-size:13px;color:#6B6B6B;font-style:italic">Ingen svar ennå. Vitenskapen er tålmodig.</div>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto">
+                  <sc-for list="{{ admin.live }}" as="s" hint-placeholder-count="3">
+                    <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 14px;background:#1A1A1A;border-radius:8px">
+                      <div style="font-size:13px;color:#C4C4C4">{{ s.who }}</div>
+                      <div style="font-size:13px;font-weight:700;color:#0BCD75;white-space:nowrap">{{ s.val }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px">
+                <div style="font-family:var(--font-display);font-weight:800;font-size:16px;color:#0D0D0D">Ny undersøkelse</div>
+                <input type="text" placeholder="Tittel / spørsmål" value="{{ admin.npTittel }}" onChange="{{ admin.setNpTittel }}" style="padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                <select value="{{ admin.npType }}" onChange="{{ admin.setNpType }}" style="padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;background:#FFFFFF;cursor:pointer">
+                  <option value="flervalg">Avstemning (flervalg)</option>
+                  <option value="skala">Skala 1–10</option>
+                  <option value="gjett">Gjettekonkurranse (tall)</option>
+                </select>
+                <input type="text" placeholder="Bilde-URL (valgfritt)" value="{{ admin.npBilde }}" onChange="{{ admin.setNpBilde }}" style="padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                <sc-if value="{{ admin.npIsF }}">
+                  <textarea placeholder="Ett svaralternativ per linje" value="{{ admin.npOptions }}" onChange="{{ admin.setNpOptions }}" rows="4" style="padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;resize:vertical;outline-color:#0BCD75"></textarea>
+                </sc-if>
+                <sc-if value="{{ admin.npIsG }}">
+                  <div style="display:flex;gap:10px">
+                    <input type="text" placeholder="Enhet (f.eks. kopper)" value="{{ admin.npEnhet }}" onChange="{{ admin.setNpEnhet }}" style="flex:1;padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                    <input type="number" placeholder="Fasit (hemmelig)" value="{{ admin.npFasit }}" onChange="{{ admin.setNpFasit }}" style="flex:1;padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                  </div>
+                </sc-if>
+                <button onClick="{{ admin.publish }}" style="padding:12px;border:none;border-radius:8px;background:linear-gradient(90deg,#0BCD75,#0C8BE2);color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer" style-hover="filter:brightness(1.1)" style-active="transform:translateY(1px) scale(0.98)">Publiser</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ admin.isUsers }}">
+          <div style="background:#FFFFFF;border:1px solid #E0E0E0;border-radius:12px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.1fr 1.6fr 0.9fr 0.6fr 1fr 1.6fr;gap:12px;padding:14px 20px;background:#F5F5F5;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#6B6B6B">
+              <div>Fornavn</div><div>Epost</div><div>Kjønn</div><div>Alder</div><div>Avdeling</div><div style="text-align:right">Handlinger</div>
+            </div>
+            <sc-for list="{{ admin.users }}" as="u" hint-placeholder-count="6">
+              <div>
+                <sc-if value="{{ u.notEditing }}">
+                  <div style="display:grid;grid-template-columns:1.1fr 1.6fr 0.9fr 0.6fr 1fr 1.6fr;gap:12px;align-items:center;padding:12px 20px;border-top:1px solid #F5F5F5;font-size:14px;color:#0D0D0D">
+                    <div style="font-weight:600;display:flex;align-items:center;gap:8px">{{ u.fornavn }}<sc-if value="{{ u.isAdmin }}"><span style="padding:2px 8px;border-radius:4px;background:rgba(12,139,226,0.12);color:#0C8BE2;font-size:10px;font-weight:700;letter-spacing:0.06em">ADMIN</span></sc-if></div>
+                    <div style="color:#4A4A4A">{{ u.epost }}</div>
+                    <div>{{ u.kjonn }}</div>
+                    <div>{{ u.alder }}</div>
+                    <div>{{ u.avdeling }}</div>
+                    <div style="display:flex;gap:8px;justify-content:flex-end">
+                      <button onClick="{{ u.edit }}" style="padding:6px 12px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;font-size:12px;font-weight:700;color:#0D0D0D;cursor:pointer" style-hover="border-color:#0D0D0D">Rediger</button>
+                      <button onClick="{{ u.resetPw }}" style="padding:6px 12px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;font-size:12px;font-weight:700;color:#4A4A4A;cursor:pointer" style-hover="border-color:#FFC335;background:rgba(255,195,53,0.1)">Nullstill passord</button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ u.editing }}">
+                  <div style="display:grid;grid-template-columns:1.1fr 1.6fr 0.9fr 0.6fr 1fr 1.6fr;gap:12px;align-items:center;padding:12px 20px;border-top:1px solid #F5F5F5;background:rgba(11,205,117,0.05);font-size:14px">
+                    <input type="text" value="{{ u.eFornavn }}" onChange="{{ u.setFornavn }}" style="padding:8px 10px;border-radius:8px;border:2px solid #0BCD75;font-size:13px;min-width:0">
+                    <div style="color:#9A9A9A;font-size:13px">{{ u.epost }}</div>
+                    <select value="{{ u.eKjonn }}" onChange="{{ u.setKjonn }}" style="padding:8px 10px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;background:#FFFFFF">
+                      <option value="K">Kvinne</option>
+                      <option value="M">Mann</option>
+                      <option value="A">Annet</option>
+                    </select>
+                    <input type="number" value="{{ u.eAlder }}" onChange="{{ u.setAlder }}" style="padding:8px 10px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;min-width:0">
+                    <select value="{{ u.eAvdeling }}" onChange="{{ u.setAvdeling }}" style="padding:8px 10px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;background:#FFFFFF">
+                      <option value="Trondheim">Trondheim</option>
+                      <option value="Oslo">Oslo</option>
+                      <option value="Göteborg">Göteborg</option>
+                    </select>
+                    <div style="display:flex;gap:8px;justify-content:flex-end">
+                      <button onClick="{{ u.save }}" style="padding:6px 14px;border-radius:8px;border:none;background:#0BCD75;color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer" style-hover="filter:brightness(1.1)">Lagre</button>
+                      <button onClick="{{ u.cancel }}" style="padding:6px 12px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;font-size:12px;font-weight:700;color:#4A4A4A;cursor:pointer">Avbryt</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:13px;color:#9A9A9A">Nye brukere opprettes automatisk ved første innlogging med @consort.no-adresse. Passord-nullstilling kobles til Supabase Auth senere.</div>
+        </sc-if>
+      </main>
+    </sc-if>
+
+    <sc-if value="{{ hasToast }}">
+      <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0D0D0D;color:#FFFFFF;padding:14px 26px;border-radius:9999px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:50;font-size:14px;font-weight:600;white-space:nowrap">{{ toast }}</div>
+    </sc-if>
+
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const U = (id, fornavn, epost, kjonn, alder, avdeling, admin) => ({ id, fornavn, epost, kjonn, alder, avdeling, admin: !!admin });
+    const users = [
+      U(1, 'Holmen', 'holmen@consort.no', 'M', 41, 'Oslo', true)
+    ];
+    const polls = [];
+    this.state = {
+      users, polls,
+      screen: 'login', userId: null,
+      loginEmail: '', loginPass: '', loginError: '',
+      activePollId: null, draftOpt: null, draftSkala: 5, draftGjett: '',
+      answered: {}, breakdown: 'alle',
+      adminTab: 'polls', adminSelId: null,
+      editUserId: null, ed: {},
+      npTittel: '', npType: 'flervalg', npOptions: '', npEnhet: '', npFasit: '', npBilde: '',
+      toast: ''
+    };
+  }
+
+  userById(id) { return this.state.users.find(u => u.id === id); }
+  pollById(id) { return this.state.polls.find(p => p.id === id); }
+  aldGroup(a) { const n = Number(a); if (!n) return 'Ukjent'; return n < 30 ? '20–29' : n < 40 ? '30–39' : n < 50 ? '40–49' : '50+'; }
+  showToast(msg) { clearTimeout(this._tt); this.setState({ toast: msg }); this._tt = setTimeout(() => this.setState({ toast: '' }), 3400); }
+  typeMeta(t) {
+    return t === 'flervalg' ? { label: 'AVSTEMNING', bg: '#0BCD75', fg: '#FFFFFF' }
+      : t === 'skala' ? { label: 'SKALA', bg: '#0C8BE2', fg: '#FFFFFF' }
+      : { label: 'KONKURRANSE', bg: '#FFC335', fg: '#0D0D0D' };
+  }
+  fmtValue(p, v) { return p.type === 'flervalg' ? p.options[v] : p.type === 'skala' ? v + ' av 10' : v + ' ' + (p.enhet || ''); }
+  segments(dim) {
+    if (dim === 'avdeling') return [{ key: 'Trondheim', label: 'Trondheim' }, { key: 'Oslo', label: 'Oslo' }, { key: 'Göteborg', label: 'Göteborg' }];
+    if (dim === 'kjonn') return [{ key: 'K', label: 'Kvinner' }, { key: 'M', label: 'Menn' }];
+    return [{ key: '20–29', label: '20–29 år' }, { key: '30–39', label: '30–39 år' }, { key: '40–49', label: '40–49 år' }, { key: '50+', label: '50+ år' }];
+  }
+  segKey(u, dim) { return dim === 'avdeling' ? u.avdeling : dim === 'kjonn' ? u.kjonn : this.aldGroup(u.alder); }
+
+  renderVals() {
+    const S = this.state;
+    const OPT = ['#0BCD75', '#0C8BE2', '#FFC335', '#2E2E2E', '#9A9A9A', '#6B6B6B'];
+    const me = S.userId ? this.userById(S.userId) : null;
+    const variant = 'Kortliste';
+    const set = k => e => this.setState({ [k]: e.target.value });
+    const nav = s => () => this.setState({ screen: s });
+
+    const doLogin = () => {
+      const em = S.loginEmail.trim().toLowerCase();
+      if (!em.endsWith('@consort.no')) { this.setState({ loginError: 'Bruk Consort-eposten din (…@consort.no).' }); return; }
+      if (!S.loginPass) { this.setState({ loginError: 'Passord mangler. (I prototypen funker hva som helst.)' }); return; }
+      let u = S.users.find(x => x.epost === em);
+      if (!u) {
+        const deler = em.split('@')[0].split('.').filter(Boolean);
+        const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+        const fornavn = deler.length ? cap(deler[0]) + (deler.length > 1 ? ' ' + deler.slice(1).map(d => d.charAt(0).toUpperCase()).join('') : '') : 'Ukjent';
+        u = { id: Math.max(...S.users.map(x => x.id)) + 1, fornavn, epost: em, kjonn: '', alder: null, avdeling: '', admin: false };
+        this.setState({ users: [...S.users, u], userId: u.id, screen: 'onboard', obAvd: '', obAar: '', obKjonn: '', loginError: '', loginPass: '' });
+        return;
+      }
+      this.setState({ userId: u.id, screen: 'home', loginError: '', loginPass: '' });
+    };
+
+    const openPoll = p => () => {
+      const answered = S.answered[p.id] || p.svar.some(s => s.u === S.userId);
+      if (p.status === 'lukket' || answered) this.setState({ screen: 'results', activePollId: p.id, breakdown: 'alle' });
+      else this.setState({ screen: 'poll', activePollId: p.id, draftOpt: null, draftSkala: 5, draftGjett: '' });
+    };
+
+    const cardOf = p => {
+      const m = this.typeMeta(p.type);
+      return { id: p.id, tittel: p.tittel, badge: m.label, bBg: m.bg, bFg: m.fg, nTxt: p.svar.length + ' svar', open: openPoll(p), cta: p.status === 'lukket' ? 'Les funnene' : 'Delta', funn: p.funn ? '«' + p.funn + '»' : '«' + p.tittel + '»' };
+    };
+    const activeCards = S.polls.filter(p => p.status === 'aktiv').map(cardOf);
+    const closedCards = S.polls.filter(p => p.status === 'lukket').map(cardOf);
+
+    const P = S.activePollId ? this.pollById(S.activePollId) : null;
+
+    let pollVM = null;
+    if (P) {
+      const m = this.typeMeta(P.type);
+      const can = P.type === 'flervalg' ? S.draftOpt !== null : P.type === 'gjett' ? S.draftGjett !== '' : true;
+      pollVM = {
+        tittel: P.tittel, badge: m.label, bBg: m.bg, bFg: m.fg,
+        isF: P.type === 'flervalg', isS: P.type === 'skala', isG: P.type === 'gjett',
+        lo: P.lo || '', hi: P.hi || '', enhet: P.enhet || '', premie: P.premie || '',
+        bilde: P.bilde || '', hasBilde: !!P.bilde,
+        subBg: can ? 'linear-gradient(90deg,#0BCD75,#0C8BE2)' : '#C4C4C4',
+        subCur: can ? 'pointer' : 'not-allowed',
+        anonNote: P.type === 'gjett' ? 'Fornavnet ditt vises på ledertavla. Ingen skam, bare vitenskap.' : 'Svaret ditt er 100 % anonymt. I resultatene brukes kun kjønn, alder og avdeling.',
+        options: (P.options || []).map((o, i) => ({
+          label: o, pick: () => this.setState({ draftOpt: i }),
+          bc: S.draftOpt === i ? '#0BCD75' : '#E0E0E0',
+          bg: S.draftOpt === i ? 'rgba(11,205,117,0.08)' : '#FFFFFF',
+          dot: S.draftOpt === i ? '#0BCD75' : '#FFFFFF'
+        })),
+        submit: () => {
+          if (!can) return;
+          if (P.svar.some(s => s.u === S.userId)) { this.showToast('Du har allerede svart på denne; én stemme per forsker.'); this.setState({ screen: 'results', breakdown: 'alle' }); return; }
+          const v = P.type === 'flervalg' ? S.draftOpt : P.type === 'skala' ? Number(S.draftSkala) : Number(S.draftGjett);
+          if (P.type === 'gjett' && !Number.isFinite(v)) return;
+          const polls = S.polls.map(x => x.id === P.id ? { ...x, svar: [...x.svar, { u: S.userId, v }] } : x);
+          this.setState({ polls, answered: { ...S.answered, [P.id]: true }, screen: 'results', breakdown: 'alle' });
+          this.showToast('Svar registrert. Takk for ditt bidrag til vitenskapen!');
+        }
+      };
+    }
+
+    let res = null;
+    if (P) {
+      const m = this.typeMeta(P.type);
+      const dim = S.breakdown;
+      const withU = P.svar.map(s => ({ ...s, user: this.userById(s.u) })).filter(s => s.user);
+      const n = withU.length;
+      const tabs = [['alle', 'Alle'], ['avdeling', 'Avdeling'], ['kjonn', 'Kjønn'], ['alder', 'Alder']].map(([k, l]) => ({
+        label: l, sel: () => this.setState({ breakdown: k }),
+        bg: dim === k ? '#0D0D0D' : '#FFFFFF', fg: dim === k ? '#FFFFFF' : '#4A4A4A', bc: dim === k ? '#0D0D0D' : '#E0E0E0'
+      }));
+      res = {
+        tittel: P.tittel, badge: m.label, n, nTxt: 'n = ' + n,
+        bilde: P.bilde || '', hasBilde: !!P.bilde,
+        headline: P.status === 'lukket' && P.funn ? P.funn : 'Foreløpige funn; studien pågår fortsatt',
+        isF: P.type === 'flervalg', isS: P.type === 'skala',
+        isGClosed: P.type === 'gjett' && P.status === 'lukket',
+        isGOpen: P.type === 'gjett' && P.status === 'aktiv',
+        showTabs: P.type !== 'gjett',
+        tabs, isAlle: dim === 'alle', notAlle: dim !== 'alle',
+        back: nav('home')
+      };
+      if (P.type === 'flervalg') {
+        const counts = P.options.map((o, i) => withU.filter(s => s.v === i).length);
+        res.rows = P.options.map((o, i) => ({ label: o, count: counts[i], pct: n ? Math.round(counts[i] / n * 100) : 0, color: OPT[i % OPT.length] }));
+        res.legend = res.rows.map(r => ({ label: r.label, color: r.color }));
+        if (dim !== 'alle') {
+          res.segRows = this.segments(dim).map(seg => {
+            const su = withU.filter(s => this.segKey(s.user, dim) === seg.key);
+            const sn = su.length;
+            const stacks = P.options.map((o, i) => ({ pct: sn ? Math.round(su.filter(s => s.v === i).length / sn * 100) : 0, color: OPT[i % OPT.length] })).filter(x => x.pct > 0);
+            let top = '—', best = 0;
+            P.options.forEach((o, i) => { const c = su.filter(s => s.v === i).length; if (c > best) { best = c; top = o; } });
+            return { label: seg.label, nTxt: sn + ' svar', stacks, top };
+          });
+        }
+      }
+      if (P.type === 'skala') {
+        const avg = n ? withU.reduce((a, s) => a + s.v, 0) / n : 0;
+        res.avg = avg.toFixed(1).replace('.', ',');
+        res.lo = P.lo; res.hi = P.hi;
+        const counts = {};
+        withU.forEach(s => { counts[s.v] = (counts[s.v] || 0) + 1; });
+        const maxC = Math.max(1, ...Object.values(counts));
+        res.hist = Array.from({ length: 10 }, (_, i) => ({ v: i + 1, count: counts[i + 1] || 0, w: Math.round((counts[i + 1] || 0) / maxC * 100) }));
+        if (dim !== 'alle') {
+          res.segAvg = this.segments(dim).map(seg => {
+            const su = withU.filter(s => this.segKey(s.user, dim) === seg.key);
+            const sn = su.length;
+            const a = sn ? su.reduce((x, s) => x + s.v, 0) / sn : 0;
+            return { label: seg.label, avg: sn ? a.toFixed(1).replace('.', ',') : '—', w: Math.round(a * 10), nTxt: sn + ' svar' };
+          });
+        }
+      }
+      if (P.type === 'gjett') {
+        if (P.status === 'lukket') {
+          res.fasit = P.fasit; res.enhet = P.enhet;
+          const sorted = [...withU].sort((a, b) => Math.abs(a.v - P.fasit) - Math.abs(b.v - P.fasit));
+          res.board = sorted.map((s, i) => ({
+            rankTxt: i === 0 ? '🏆' : (i + 1) + '.', navn: s.user.fornavn, avd: s.user.avdeling,
+            gjett: s.v + ' ' + P.enhet, diff: '±' + Math.abs(s.v - P.fasit),
+            bg: i === 0 ? '#0D0D0D' : '#FFFFFF', fg: i === 0 ? '#FFFFFF' : '#0D0D0D'
+          }));
+        } else {
+          res.premie = P.premie;
+          res.participants = withU.map(s => ({ navn: s.user.fornavn, avd: s.user.avdeling }));
+        }
+      }
+    }
+
+    let admin = null;
+    if (me && me.admin) {
+      const selP = this.pollById(S.adminSelId) || S.polls[0];
+      const tabBtn = active => active ? { bg: '#0D0D0D', fg: '#FFFFFF', bc: '#0D0D0D' } : { bg: '#FFFFFF', fg: '#4A4A4A', bc: '#E0E0E0' };
+      const tp = tabBtn(S.adminTab === 'polls'), tu = tabBtn(S.adminTab === 'users');
+      admin = {
+        isPolls: S.adminTab === 'polls', isUsers: S.adminTab === 'users',
+        tabPolls: () => this.setState({ adminTab: 'polls' }), tabUsers: () => this.setState({ adminTab: 'users' }),
+        tpBg: tp.bg, tpFg: tp.fg, tpBc: tp.bc, tuBg: tu.bg, tuFg: tu.fg, tuBc: tu.bc,
+        polls: S.polls.map(p => {
+          const m = this.typeMeta(p.type);
+          return {
+            tittel: p.tittel, badge: m.label, bBg: m.bg, bFg: m.fg,
+            bc: S.adminSelId === p.id ? '#0BCD75' : '#E0E0E0',
+            statusTxt: p.status === 'aktiv' ? 'Aktiv' : 'Lukket',
+            stBg: p.status === 'aktiv' ? 'rgba(11,205,117,0.12)' : '#F5F5F5',
+            stFg: p.status === 'aktiv' ? '#0BCD75' : '#6B6B6B',
+            nTxt: p.svar.length + ' svar',
+            view: () => this.setState({ adminSelId: p.id }),
+            toggleTxt: p.status === 'aktiv' ? 'Lukk og publiser funn' : 'Gjenåpne',
+            toggle: e => {
+              if (e) e.stopPropagation();
+              const polls = S.polls.map(x => x.id === p.id ? { ...x, status: x.status === 'aktiv' ? 'lukket' : 'aktiv' } : x);
+              this.setState({ polls });
+              this.showToast(p.status === 'aktiv' ? 'Undersøkelsen er lukket; funnene er publisert!' : 'Undersøkelsen er gjenåpnet.');
+            }
+          };
+        }),
+        selTittel: selP ? selP.tittel : '', selN: selP ? selP.svar.length + ' svar til nå' : '',
+        liveEmpty: selP ? selP.svar.length === 0 : true,
+        live: selP ? [...selP.svar].reverse().map(s => {
+          const u = this.userById(s.u);
+          if (!u) return null;
+          return { who: selP.type === 'gjett' ? u.fornavn + ' (' + u.avdeling + ')' : 'Anonym (' + u.avdeling + ', ' + u.kjonn + ', ' + (u.alder || '?') + ')', val: this.fmtValue(selP, s.v) };
+        }).filter(Boolean) : [],
+        npTittel: S.npTittel, setNpTittel: set('npTittel'),
+        npType: S.npType, setNpType: set('npType'),
+        npIsF: S.npType === 'flervalg', npIsG: S.npType === 'gjett',
+        npOptions: S.npOptions, setNpOptions: set('npOptions'),
+        npEnhet: S.npEnhet, setNpEnhet: set('npEnhet'),
+        npBilde: S.npBilde, setNpBilde: set('npBilde'),
+        npFasit: S.npFasit, setNpFasit: set('npFasit'),
+        publish: () => {
+          if (!S.npTittel.trim()) { this.showToast('Studien trenger en tittel.'); return; }
+          const opts = S.npOptions.split('\n').map(x => x.trim()).filter(Boolean);
+          if (S.npType === 'flervalg' && opts.length < 2) { this.showToast('Minst to svaralternativer, takk.'); return; }
+          const id = 'nyp-' + Date.now();
+          const p = { id, type: S.npType, status: 'aktiv', tittel: S.npTittel.trim(), svar: [], funn: '', bilde: S.npBilde.trim() };
+          if (S.npType === 'flervalg') p.options = opts;
+          if (S.npType === 'skala') { p.lo = 'Ikke i det hele tatt'; p.hi = 'I aller høyeste grad'; }
+          if (S.npType === 'gjett') { p.enhet = S.npEnhet || 'stk'; p.fasit = Number(S.npFasit) || 0; p.premie = 'Evig heder'; }
+          this.setState({ polls: [p, ...S.polls], npTittel: '', npOptions: '', npEnhet: '', npFasit: '', npBilde: '', adminSelId: id });
+          this.showToast('Publisert! Vitenskapen er i gang.');
+        },
+        users: S.users.map(u => {
+          const editing = S.editUserId === u.id;
+          const setEd = k => e => this.setState({ ed: { ...S.ed, [k]: e.target.value } });
+          return {
+            fornavn: u.fornavn, epost: u.epost,
+            kjonn: u.kjonn === 'K' ? 'Kvinne' : u.kjonn === 'M' ? 'Mann' : 'Annet',
+            alder: u.alder || '–', avdeling: u.avdeling, isAdmin: u.admin,
+            editing, notEditing: !editing,
+            eFornavn: S.ed.fornavn, eKjonn: S.ed.kjonn, eAlder: S.ed.alder, eAvdeling: S.ed.avdeling,
+            setFornavn: setEd('fornavn'), setKjonn: setEd('kjonn'), setAlder: setEd('alder'), setAvdeling: setEd('avdeling'),
+            edit: () => this.setState({ editUserId: u.id, ed: { fornavn: u.fornavn, kjonn: u.kjonn, alder: u.alder, avdeling: u.avdeling } }),
+            save: () => {
+              const users = S.users.map(x => x.id === u.id ? { ...x, fornavn: S.ed.fornavn || x.fornavn, kjonn: S.ed.kjonn, alder: Number(S.ed.alder) || x.alder, avdeling: S.ed.avdeling } : x);
+              this.setState({ users, editUserId: null });
+              this.showToast('Lagret.');
+            },
+            cancel: () => this.setState({ editUserId: null }),
+            resetPw: () => this.showToast('Nytt passord generert og «sendt» til ' + u.epost + ', kobles til Supabase Auth senere.')
+          };
+        })
+      };
+    }
+
+    const funnListe = S.polls
+      .filter(p => p.status === 'lukket' && p.funn)
+      .map(p => ({ tekst: p.funn + '.', mnd: new Date().toLocaleDateString('nb-NO', { month: 'long', year: 'numeric' }), open: openPoll(p) }));
+
+    return {
+      isLogin: S.screen === 'login', isApp: S.screen !== 'login' && S.screen !== 'onboard',
+      isOnboard: S.screen === 'onboard',
+      obAvd: S.obAvd || '', obAar: S.obAar || '', obKjonn: S.obKjonn || '',
+      obAvdOpts: ['Trondheim', 'Oslo', 'Göteborg'].map(a => ({
+        label: a, pick: () => this.setState({ obAvd: a }),
+        bc: S.obAvd === a ? '#0BCD75' : '#E0E0E0', bg: S.obAvd === a ? 'rgba(11,205,117,0.08)' : '#FFFFFF', fw: S.obAvd === a ? '700' : '600'
+      })),
+      obKjonnOpts: [['K', 'Kvinne'], ['M', 'Mann'], ['A', 'Annet']].map(([k, l]) => ({
+        label: l, pick: () => this.setState({ obKjonn: k }),
+        bc: S.obKjonn === k ? '#0BCD75' : '#E0E0E0', bg: S.obKjonn === k ? 'rgba(11,205,117,0.08)' : '#FFFFFF', fw: S.obKjonn === k ? '700' : '600'
+      })),
+      obAarOpts: Array.from({ length: 60 }, (_, i) => String(new Date().getFullYear() - 18 - i)),
+      setObAar: set('obAar'),
+      obReady: !!(S.obAvd && S.obAar && S.obKjonn),
+      obBg: (S.obAvd && S.obAar && S.obKjonn) ? 'linear-gradient(90deg,#0BCD75,#0C8BE2)' : '#C4C4C4',
+      obCur: (S.obAvd && S.obAar && S.obKjonn) ? 'pointer' : 'not-allowed',
+      obSubmit: () => {
+        if (!(S.obAvd && S.obAar && S.obKjonn)) return;
+        const alder = new Date().getFullYear() - Number(S.obAar);
+        const users = S.users.map(x => x.id === S.userId ? { ...x, avdeling: S.obAvd, kjonn: S.obKjonn, alder } : x);
+        this.setState({ users, screen: 'home' });
+        this.showToast('Velkommen! Profilen din er lagret.');
+      },
+      isFunn: S.screen === 'funn', goFunn: nav('funn'), funnListe,
+      isHome: S.screen === 'home', isPoll: S.screen === 'poll' && !!pollVM,
+      isResults: S.screen === 'results' && !!res, isAdmin: S.screen === 'admin' && !!admin,
+      loginEmail: S.loginEmail, loginPass: S.loginPass,
+      setLoginEmail: set('loginEmail'), setLoginPass: set('loginPass'),
+      doLogin, loginKey: e => { if (e.key === 'Enter') doLogin(); },
+      loginError: S.loginError, hasLoginError: !!S.loginError,
+      demoHint: false,
+      meNavn: me ? me.fornavn : '', meAvd: me ? me.avdeling : '',
+      isAdminUser: !!(me && me.admin),
+      goHome: nav('home'), goAdmin: () => this.setState({ screen: 'admin' }),
+      logout: () => this.setState({ screen: 'login', userId: null, loginEmail: '', loginPass: '' }),
+      variantKort: variant !== 'Tabloid', variantTabloid: variant === 'Tabloid',
+      activeCards, closedCards, hasClosed: closedCards.length > 0,
+      dagens: new Date().toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+      poll: pollVM, res, admin,
+      skalaVal: S.draftSkala, setSkala: set('draftSkala'),
+      gjettVal: S.draftGjett, setGjett: set('draftGjett'),
+      toast: S.toast, hasToast: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
