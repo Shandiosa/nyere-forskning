@@ -60,14 +60,12 @@ create policy "les polls" on public.polls for select to authenticated using (tru
 create policy "admin skriver polls" on public.polls for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
--- responses: eget svar kan leses/leveres; alle svar leses når pollen er lukket
--- (og av admin, for live-visning). Ingen update/delete: svaret er endelig.
-create policy "les svar" on public.responses for select to authenticated
-  using (
-    user_id = auth.uid()
-    or public.is_admin()
-    or exists (select 1 from public.polls p where p.id = poll_id and p.status = 'lukket')
-  );
+-- responses: alle innloggede kan lese alle svar, slik at aggregerte resultater
+-- og demografisk nedbrytning fungerer live (appen viser aldri navn på polls/skala).
+-- NB: dette gjør at en teknisk kyndig bruker i teori kan koble svar til bruker.
+-- Vil du ha KLINISK anonymitet, bytt denne policyen til å kun tillate eget svar +
+-- admin + lukkede polls, og hent aggregater via egne security-definer RPC-funksjoner.
+create policy "les svar" on public.responses for select to authenticated using (true);
 create policy "lever svar" on public.responses for insert to authenticated
   with check (
     user_id = auth.uid()

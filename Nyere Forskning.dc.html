@@ -10,6 +10,7 @@
 <helmet>
   <link rel="stylesheet" href="_ds/consort-design-system-5951af1e-b505-44b2-aebc-b9f7d27289b5/colors_and_type.css">
   <script src="_ds/consort-design-system-5951af1e-b505-44b2-aebc-b9f7d27289b5/_ds_bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { margin: 0; background: #F5F5F5; }
     input, select, textarea, button { font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -444,6 +445,7 @@
                     <div style="font-size:13px;color:#9A9A9A">{{ p.nTxt }}</div>
                   </div>
                   <div style="font-family:var(--font-display);font-weight:800;font-size:17px;line-height:1.3;color:#0D0D0D">{{ p.tittel }}</div>
+                  <input type="text" placeholder="«Nyere forskning viser …» (vises når du lukker)" value="{{ p.funnVal }}" onChange="{{ p.setFunn }}" onClick="{{ p.stop }}" style="padding:9px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75">
                   <div style="display:flex;gap:8px">
                     <button onClick="{{ p.toggle }}" style="padding:7px 14px;border-radius:8px;border:1px solid #0D0D0D;background:#FFFFFF;color:#0D0D0D;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#0D0D0D;color:#FFFFFF">{{ p.toggleTxt }}</button>
                   </div>
@@ -539,7 +541,7 @@
               </div>
             </sc-for>
           </div>
-          <div style="font-size:13px;color:#9A9A9A">Nye brukere opprettes automatisk ved første innlogging med @consort.no-adresse. Passord-nullstilling kobles til Supabase Auth senere.</div>
+          <div style="font-size:13px;color:#9A9A9A">Nye brukere opprettes automatisk ved første innlogging med @consort.no-adresse. «Nullstill passord» sender en tilbakestillingslenke til brukerens e-post via Supabase.</div>
         </sc-if>
       </main>
     </sc-if>
@@ -555,22 +557,91 @@
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    const U = (id, fornavn, epost, kjonn, alder, avdeling, admin) => ({ id, fornavn, epost, kjonn, alder, avdeling, admin: !!admin });
-    const users = [
-      U(1, 'Holmen', 'holmen@consort.no', 'M', 41, 'Oslo', true)
-    ];
-    const polls = [];
+    this.SB_URL = 'https://gcujiqolxxocssqxooje.supabase.co';
+    this.SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjdWppcW9seHhvY3NzcXhvb2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwNTkwMzcsImV4cCI6MjA5ODYzNTAzN30.fxmgZlO1FJvlitrndA2uQq_GmKaKlHuA0QMdl-eqtRw';
+    this.sb = null;
     this.state = {
-      users, polls,
-      screen: 'login', userId: null,
+      users: [], polls: [],
+      screen: 'login', userId: null, booting: true,
       loginEmail: '', loginPass: '', loginError: '',
       activePollId: null, draftOpt: null, draftSkala: 5, draftGjett: '',
       answered: {}, breakdown: 'alle',
       adminTab: 'polls', adminSelId: null,
-      editUserId: null, ed: {},
+      editUserId: null, ed: {}, funnDrafts: {},
+      obAvd: '', obAar: '', obKjonn: '',
       npTittel: '', npType: 'flervalg', npOptions: '', npEnhet: '', npFasit: '', npBilde: '',
       toast: ''
     };
+  }
+
+  async initSb() {
+    for (let i = 0; i < 60 && !(window.supabase && window.supabase.createClient); i++) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+    if (window.supabase && window.supabase.createClient && !this.sb) {
+      this.sb = window.supabase.createClient(this.SB_URL, this.SB_KEY);
+    }
+    return this.sb;
+  }
+
+  async componentDidMount() {
+    await this.initSb();
+    if (this.sb) {
+      const { data } = await this.sb.auth.getSession();
+      if (data && data.session) await this.afterLogin(data.session.user);
+    }
+    this.setState({ booting: false });
+    this._poll = setInterval(() => { if (this.state.userId && this.sb) this.loadData(); }, 8000);
+  }
+
+  componentWillUnmount() { clearInterval(this._poll); clearTimeout(this._tt); }
+
+  genFornavn(em) {
+    const deler = String(em).split('@')[0].split('.').filter(Boolean);
+    if (!deler.length) return 'Ukjent';
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    return cap(deler[0]) + (deler.length > 1 ? ' ' + deler.slice(1).map(d => d.charAt(0).toUpperCase()).join('') : '');
+  }
+
+  async loadData() {
+    if (!this.sb) return { users: [], polls: [] };
+    const yr = new Date().getFullYear();
+    const [pr, pl, rs] = await Promise.all([
+      this.sb.from('profiles').select('*'),
+      this.sb.from('polls').select('*').order('created_at', { ascending: false }),
+      this.sb.from('responses').select('poll_id,user_id,verdi')
+    ]);
+    const users = (pr.data || []).map(p => ({
+      id: p.id, fornavn: p.fornavn, epost: p.epost,
+      kjonn: p.kjonn || '', alder: p.fodselsaar ? yr - p.fodselsaar : null,
+      avdeling: p.avdeling || '', admin: !!p.is_admin
+    }));
+    const resp = rs.data || [];
+    const polls = (pl.data || []).map(p => ({
+      id: p.id, type: p.type, status: p.status, tittel: p.tittel,
+      options: p.options || [], lo: p.skala_lo, hi: p.skala_hi,
+      enhet: p.enhet, fasit: p.fasit, premie: p.premie, funn: p.funn || '', bilde: p.bilde_url || '',
+      svar: resp.filter(r => r.poll_id === p.id).map(r => ({ u: r.user_id, v: Number(r.verdi) }))
+    }));
+    this.setState({ users, polls });
+    return { users, polls };
+  }
+
+  async afterLogin(authUser) {
+    const uid = authUser.id;
+    let { users } = await this.loadData();
+    let me = users.find(u => u.id === uid);
+    if (!me) {
+      await this.sb.from('profiles').upsert({
+        id: uid, epost: authUser.email,
+        fornavn: (authUser.user_metadata && authUser.user_metadata.fornavn) || this.genFornavn(authUser.email),
+        is_admin: authUser.email === 'holmen@consort.no'
+      });
+      ({ users } = await this.loadData());
+      me = users.find(u => u.id === uid);
+    }
+    const complete = me && me.avdeling && me.kjonn && me.alder;
+    this.setState({ userId: uid, screen: complete ? 'home' : 'onboard', obAvd: '', obAar: '', obKjonn: '', loginError: '', loginPass: '', loginEmail: '' });
   }
 
   userById(id) { return this.state.users.find(u => u.id === id); }
@@ -598,20 +669,21 @@ class Component extends DCLogic {
     const set = k => e => this.setState({ [k]: e.target.value });
     const nav = s => () => this.setState({ screen: s });
 
-    const doLogin = () => {
+    const doLogin = async () => {
       const em = S.loginEmail.trim().toLowerCase();
       if (!em.endsWith('@consort.no')) { this.setState({ loginError: 'Bruk Consort-eposten din (…@consort.no).' }); return; }
-      if (!S.loginPass) { this.setState({ loginError: 'Passord mangler. (I prototypen funker hva som helst.)' }); return; }
-      let u = S.users.find(x => x.epost === em);
-      if (!u) {
-        const deler = em.split('@')[0].split('.').filter(Boolean);
-        const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-        const fornavn = deler.length ? cap(deler[0]) + (deler.length > 1 ? ' ' + deler.slice(1).map(d => d.charAt(0).toUpperCase()).join('') : '') : 'Ukjent';
-        u = { id: Math.max(...S.users.map(x => x.id)) + 1, fornavn, epost: em, kjonn: '', alder: null, avdeling: '', admin: false };
-        this.setState({ users: [...S.users, u], userId: u.id, screen: 'onboard', obAvd: '', obAar: '', obKjonn: '', loginError: '', loginPass: '' });
+      if (!S.loginPass) { this.setState({ loginError: 'Skriv inn et passord.' }); return; }
+      if (!this.sb) { this.setState({ loginError: 'Kobler til Supabase … prøv igjen om et øyeblikk.' }); await this.initSb(); return; }
+      this.setState({ loginError: '' });
+      const { data, error } = await this.sb.auth.signInWithPassword({ email: em, password: S.loginPass });
+      if (!error && data && data.session) { await this.afterLogin(data.user); return; }
+      const { data: su, error: suErr } = await this.sb.auth.signUp({ email: em, password: S.loginPass, options: { data: { fornavn: this.genFornavn(em) } } });
+      if (suErr) {
+        this.setState({ loginError: /registered|exists/i.test(suErr.message) ? 'Feil passord. Prøv igjen.' : suErr.message });
         return;
       }
-      this.setState({ userId: u.id, screen: 'home', loginError: '', loginPass: '' });
+      if (!su.session) { this.setState({ loginError: 'Konto opprettet! Bekreft e-posten din, så logger du inn.', loginPass: '' }); return; }
+      await this.afterLogin(su.user);
     };
 
     const openPoll = p => () => {
@@ -647,13 +719,15 @@ class Component extends DCLogic {
           bg: S.draftOpt === i ? 'rgba(11,205,117,0.08)' : '#FFFFFF',
           dot: S.draftOpt === i ? '#0BCD75' : '#FFFFFF'
         })),
-        submit: () => {
+        submit: async () => {
           if (!can) return;
           if (P.svar.some(s => s.u === S.userId)) { this.showToast('Du har allerede svart på denne; én stemme per forsker.'); this.setState({ screen: 'results', breakdown: 'alle' }); return; }
           const v = P.type === 'flervalg' ? S.draftOpt : P.type === 'skala' ? Number(S.draftSkala) : Number(S.draftGjett);
           if (P.type === 'gjett' && !Number.isFinite(v)) return;
-          const polls = S.polls.map(x => x.id === P.id ? { ...x, svar: [...x.svar, { u: S.userId, v }] } : x);
-          this.setState({ polls, answered: { ...S.answered, [P.id]: true }, screen: 'results', breakdown: 'alle' });
+          const { error } = await this.sb.from('responses').insert({ poll_id: P.id, user_id: S.userId, verdi: v });
+          await this.loadData();
+          if (error) { this.showToast(/duplicate|unique/i.test(error.message) ? 'Du har allerede svart på denne.' : 'Kunne ikke lagre: ' + error.message); this.setState({ screen: 'results', breakdown: 'alle' }); return; }
+          this.setState({ answered: { ...S.answered, [P.id]: true }, screen: 'results', breakdown: 'alle' });
           this.showToast('Svar registrert. Takk for ditt bidrag til vitenskapen!');
         }
       };
@@ -747,12 +821,19 @@ class Component extends DCLogic {
             stFg: p.status === 'aktiv' ? '#0BCD75' : '#6B6B6B',
             nTxt: p.svar.length + ' svar',
             view: () => this.setState({ adminSelId: p.id }),
+            stop: e => { if (e) e.stopPropagation(); },
+            funnVal: S.funnDrafts[p.id] !== undefined ? S.funnDrafts[p.id] : (p.funn || ''),
+            setFunn: e => this.setState({ funnDrafts: { ...S.funnDrafts, [p.id]: e.target.value } }),
             toggleTxt: p.status === 'aktiv' ? 'Lukk og publiser funn' : 'Gjenåpne',
-            toggle: e => {
+            toggle: async e => {
               if (e) e.stopPropagation();
-              const polls = S.polls.map(x => x.id === p.id ? { ...x, status: x.status === 'aktiv' ? 'lukket' : 'aktiv' } : x);
-              this.setState({ polls });
-              this.showToast(p.status === 'aktiv' ? 'Undersøkelsen er lukket; funnene er publisert!' : 'Undersøkelsen er gjenåpnet.');
+              const closing = p.status === 'aktiv';
+              const patch = { status: closing ? 'lukket' : 'aktiv' };
+              if (closing) patch.funn = (S.funnDrafts[p.id] !== undefined ? S.funnDrafts[p.id] : (p.funn || '')).trim();
+              const { error } = await this.sb.from('polls').update(patch).eq('id', p.id);
+              if (error) { this.showToast('Kunne ikke oppdatere: ' + error.message); return; }
+              await this.loadData();
+              this.showToast(closing ? 'Undersøkelsen er lukket; funnene er publisert!' : 'Undersøkelsen er gjenåpnet.');
             }
           };
         }),
@@ -770,16 +851,18 @@ class Component extends DCLogic {
         npEnhet: S.npEnhet, setNpEnhet: set('npEnhet'),
         npBilde: S.npBilde, setNpBilde: set('npBilde'),
         npFasit: S.npFasit, setNpFasit: set('npFasit'),
-        publish: () => {
+        publish: async () => {
           if (!S.npTittel.trim()) { this.showToast('Studien trenger en tittel.'); return; }
           const opts = S.npOptions.split('\n').map(x => x.trim()).filter(Boolean);
           if (S.npType === 'flervalg' && opts.length < 2) { this.showToast('Minst to svaralternativer, takk.'); return; }
-          const id = 'nyp-' + Date.now();
-          const p = { id, type: S.npType, status: 'aktiv', tittel: S.npTittel.trim(), svar: [], funn: '', bilde: S.npBilde.trim() };
-          if (S.npType === 'flervalg') p.options = opts;
-          if (S.npType === 'skala') { p.lo = 'Ikke i det hele tatt'; p.hi = 'I aller høyeste grad'; }
-          if (S.npType === 'gjett') { p.enhet = S.npEnhet || 'stk'; p.fasit = Number(S.npFasit) || 0; p.premie = 'Evig heder'; }
-          this.setState({ polls: [p, ...S.polls], npTittel: '', npOptions: '', npEnhet: '', npFasit: '', npBilde: '', adminSelId: id });
+          const row = { type: S.npType, status: 'aktiv', tittel: S.npTittel.trim(), bilde_url: S.npBilde.trim() || null };
+          if (S.npType === 'flervalg') row.options = opts;
+          if (S.npType === 'skala') { row.skala_lo = 'Ikke i det hele tatt'; row.skala_hi = 'I aller høyeste grad'; }
+          if (S.npType === 'gjett') { row.enhet = S.npEnhet || 'stk'; row.fasit = Number(S.npFasit) || 0; row.premie = 'Evig heder'; }
+          const { data, error } = await this.sb.from('polls').insert(row).select().single();
+          if (error) { this.showToast('Kunne ikke publisere: ' + error.message); return; }
+          await this.loadData();
+          this.setState({ npTittel: '', npOptions: '', npEnhet: '', npFasit: '', npBilde: '', adminSelId: data ? data.id : S.adminSelId });
           this.showToast('Publisert! Vitenskapen er i gang.');
         },
         users: S.users.map(u => {
@@ -793,13 +876,20 @@ class Component extends DCLogic {
             eFornavn: S.ed.fornavn, eKjonn: S.ed.kjonn, eAlder: S.ed.alder, eAvdeling: S.ed.avdeling,
             setFornavn: setEd('fornavn'), setKjonn: setEd('kjonn'), setAlder: setEd('alder'), setAvdeling: setEd('avdeling'),
             edit: () => this.setState({ editUserId: u.id, ed: { fornavn: u.fornavn, kjonn: u.kjonn, alder: u.alder, avdeling: u.avdeling } }),
-            save: () => {
-              const users = S.users.map(x => x.id === u.id ? { ...x, fornavn: S.ed.fornavn || x.fornavn, kjonn: S.ed.kjonn, alder: Number(S.ed.alder) || x.alder, avdeling: S.ed.avdeling } : x);
-              this.setState({ users, editUserId: null });
+            save: async () => {
+              const patch = { fornavn: S.ed.fornavn || u.fornavn, kjonn: S.ed.kjonn, avdeling: S.ed.avdeling };
+              if (S.ed.alder) patch.fodselsaar = new Date().getFullYear() - Number(S.ed.alder);
+              const { error } = await this.sb.from('profiles').update(patch).eq('id', u.id);
+              if (error) { this.showToast('Kunne ikke lagre: ' + error.message); return; }
+              await this.loadData();
+              this.setState({ editUserId: null });
               this.showToast('Lagret.');
             },
             cancel: () => this.setState({ editUserId: null }),
-            resetPw: () => this.showToast('Nytt passord generert og «sendt» til ' + u.epost + ', kobles til Supabase Auth senere.')
+            resetPw: async () => {
+              const { error } = await this.sb.auth.resetPasswordForEmail(u.epost);
+              this.showToast(error ? 'Kunne ikke sende: ' + error.message : 'Tilbakestillingslenke er sendt til ' + u.epost + '.');
+            }
           };
         })
       };
@@ -826,11 +916,12 @@ class Component extends DCLogic {
       obReady: !!(S.obAvd && S.obAar && S.obKjonn),
       obBg: (S.obAvd && S.obAar && S.obKjonn) ? 'linear-gradient(90deg,#0BCD75,#0C8BE2)' : '#C4C4C4',
       obCur: (S.obAvd && S.obAar && S.obKjonn) ? 'pointer' : 'not-allowed',
-      obSubmit: () => {
+      obSubmit: async () => {
         if (!(S.obAvd && S.obAar && S.obKjonn)) return;
-        const alder = new Date().getFullYear() - Number(S.obAar);
-        const users = S.users.map(x => x.id === S.userId ? { ...x, avdeling: S.obAvd, kjonn: S.obKjonn, alder } : x);
-        this.setState({ users, screen: 'home' });
+        const { error } = await this.sb.from('profiles').update({ avdeling: S.obAvd, kjonn: S.obKjonn, fodselsaar: Number(S.obAar) }).eq('id', S.userId);
+        if (error) { this.showToast('Kunne ikke lagre profilen: ' + error.message); return; }
+        await this.loadData();
+        this.setState({ screen: 'home' });
         this.showToast('Velkommen! Profilen din er lagret.');
       },
       isFunn: S.screen === 'funn', goFunn: nav('funn'), funnListe,
@@ -844,7 +935,7 @@ class Component extends DCLogic {
       meNavn: me ? me.fornavn : '', meAvd: me ? me.avdeling : '',
       isAdminUser: !!(me && me.admin),
       goHome: nav('home'), goAdmin: () => this.setState({ screen: 'admin' }),
-      logout: () => this.setState({ screen: 'login', userId: null, loginEmail: '', loginPass: '' }),
+      logout: async () => { if (this.sb) await this.sb.auth.signOut(); this.setState({ screen: 'login', userId: null, users: [], polls: [], loginEmail: '', loginPass: '' }); },
       variantKort: variant !== 'Tabloid', variantTabloid: variant === 'Tabloid',
       activeCards, closedCards, hasClosed: closedCards.length > 0,
       dagens: new Date().toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
