@@ -7,10 +7,10 @@ Intern-nettside for Consort: avstemninger, skalaundersøkelser og gjettekonkurra
 - `index.html` – redirect til appen (gjør at GitHub Pages funker rett ut av boksen)
 - `Nyere Forskning.dc.html` – hele appen (innlogging, forside, besvarelse, resultater, «Sånn er Consort», admin)
 - `support.js` – runtime som kjører appen
-- `_ds/` – Consort designsystem (farger, fonter, komponenter)
+- `ds/` – Consort designsystem (farger, fonter Poppins, komponent-bundle). Ligger bevisst i en mappe UTEN understrek, fordi GitHub Pages hopper over alt som starter med `_`.
 - `assets/` – logoer og dots-ornamenter
 - `supabase/schema.sql` – databaseskjema klart til å kjøres i Supabase SQL Editor
-- `.nojekyll` – **må være med.** GitHub Pages hopper ellers over `_ds/`-mappa (alt som starter med `_`), og da laster ikke fonter/CSS.
+- `.nojekyll` – ekstra sikring mot Jekyll. Ha den gjerne med, men appen laster nå fonter/CSS fra `ds/` uansett.
 
 ## Publisere på GitHub Pages
 
@@ -18,7 +18,7 @@ Intern-nettside for Consort: avstemninger, skalaundersøkelser og gjettekonkurra
 2. Settings → Pages → Deploy from branch → `main` / root.
 3. Siden ligger på `https://<bruker>.github.io/<repo>/`.
 
-> Ser du serif-skrift i stedet for Poppins på live-siden? Da mangler `.nojekyll` i repoet — legg den til i rota og push på nytt.
+> Ser du serif-skrift i stedet for Poppins? Da lastes ikke `ds/colors_and_type.css`. Sjekk at hele `ds/`-mappa (inkl. `ds/fonts/`) faktisk ble pushet til repoet.
 
 ## Supabase — allerede koblet på
 
