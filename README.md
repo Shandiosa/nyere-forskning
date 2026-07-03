@@ -10,12 +10,15 @@ Intern-nettside for Consort: avstemninger, skalaundersøkelser og gjettekonkurra
 - `_ds/` – Consort designsystem (farger, fonter, komponenter)
 - `assets/` – logoer og dots-ornamenter
 - `supabase/schema.sql` – databaseskjema klart til å kjøres i Supabase SQL Editor
+- `.nojekyll` – **må være med.** GitHub Pages hopper ellers over `_ds/`-mappa (alt som starter med `_`), og da laster ikke fonter/CSS.
 
 ## Publisere på GitHub Pages
 
-1. Lag et repo og push hele mappa.
+1. Lag et repo og push hele mappa (inkludert den skjulte `.nojekyll`-fila).
 2. Settings → Pages → Deploy from branch → `main` / root.
 3. Siden ligger på `https://<bruker>.github.io/<repo>/`.
+
+> Ser du serif-skrift i stedet for Poppins på live-siden? Da mangler `.nojekyll` i repoet — legg den til i rota og push på nytt.
 
 ## Supabase — allerede koblet på
 
