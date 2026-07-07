@@ -487,7 +487,23 @@
                     <div style="padding:4px 10px;border-radius:9999px;background:{{ p.stBg }};color:{{ p.stFg }};font-size:11px;font-weight:700">{{ p.statusTxt }}</div>
                     <div style="font-size:13px;color:#9A9A9A">{{ p.nTxt }}</div>
                   </div>
-                  <div style="font-family:var(--font-display);font-weight:800;font-size:17px;line-height:1.3;color:#0D0D0D">{{ p.tittel }}</div>
+                  <sc-if value="{{ p.notEditingTitle }}">
+                    <div style="display:flex;align-items:flex-start;gap:8px">
+                      <div style="flex:1;font-family:var(--font-display);font-weight:800;font-size:17px;line-height:1.3;color:#0D0D0D">{{ p.tittel }}</div>
+                      <sc-if value="{{ p.canEditTitle }}">
+                        <button onClick="{{ p.startEditTitle }}" style="border:none;background:transparent;padding:2px 4px;font-size:12px;font-weight:700;color:#0C8BE2;cursor:pointer;white-space:nowrap" style-hover="text-decoration:underline">Endre</button>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ p.editingTitle }}">
+                    <div style="display:flex;flex-direction:column;gap:8px" onClick="{{ p.stop }}">
+                      <input type="text" value="{{ p.titleDraft }}" onChange="{{ p.setTitleDraft }}" style="padding:10px 12px;border-radius:8px;border:2px solid #0BCD75;font-size:15px;font-weight:600;outline-color:#0BCD75">
+                      <div style="display:flex;gap:8px">
+                        <button onClick="{{ p.saveTitle }}" style="padding:6px 14px;border-radius:8px;border:none;background:#0BCD75;color:#FFFFFF;font-size:12px;font-weight:700;cursor:pointer" style-hover="filter:brightness(1.1)">Lagre tittel</button>
+                        <button onClick="{{ p.cancelTitle }}" style="padding:6px 12px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;color:#4A4A4A;font-size:12px;font-weight:700;cursor:pointer">Avbryt</button>
+                      </div>
+                    </div>
+                  </sc-if>
                   <input type="text" placeholder="«Nyere forskning viser …» (vises når du lukker)" value="{{ p.funnVal }}" onChange="{{ p.setFunn }}" onClick="{{ p.stop }}" style="padding:9px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75">
                   <div style="display:flex;gap:8px">
                     <button onClick="{{ p.toggle }}" style="padding:7px 14px;border-radius:8px;border:1px solid #0D0D0D;background:#FFFFFF;color:#0D0D0D;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#0D0D0D;color:#FFFFFF">{{ p.toggleTxt }}</button>
@@ -674,7 +690,7 @@ class Component extends DCLogic {
       activePollId: null, draftOpt: null, draftSkala: 5, draftGjett: '',
       answered: {}, breakdown: 'alle',
       adminTab: 'polls', adminSelId: null,
-      editUserId: null, ed: {}, funnDrafts: {},
+      editUserId: null, ed: {}, funnDrafts: {}, editTitleId: null, titleDraft: '',
       obAvd: '', obAar: '', obKjonn: '',
       npTittel: '', npType: 'flervalg', npOptions: '', npEnhet: '', npFasit: '', npBilde: '',
       npOptA: '', npOptB: '', npImgA: '', npImgB: '',
@@ -1030,6 +1046,23 @@ class Component extends DCLogic {
             setFunn: e => this.setState({ funnDrafts: { ...S.funnDrafts, [p.id]: e.target.value } }),
             toggleTxt: p.status === 'aktiv' ? 'Lukk og publiser funn' : 'Gjenåpne',
             canDelete: p.status === 'lukket',
+            canEditTitle: p.status === 'aktiv',
+            editingTitle: S.editTitleId === p.id,
+            notEditingTitle: S.editTitleId !== p.id,
+            titleDraft: S.titleDraft,
+            setTitleDraft: e => this.setState({ titleDraft: e.target.value }),
+            startEditTitle: e => { if (e) e.stopPropagation(); this.setState({ editTitleId: p.id, titleDraft: p.tittel }); },
+            cancelTitle: e => { if (e) e.stopPropagation(); this.setState({ editTitleId: null }); },
+            saveTitle: async e => {
+              if (e) e.stopPropagation();
+              const t = this.state.titleDraft.trim();
+              if (!t) { this.showToast('Tittelen kan ikke være tom.'); return; }
+              const { error } = await this.sb.from('polls').update({ tittel: t }).eq('id', p.id);
+              if (error) { this.showToast('Kunne ikke lagre: ' + error.message); return; }
+              await this.loadData();
+              this.setState({ editTitleId: null });
+              this.showToast('Tittel oppdatert.');
+            },
             toggle: async e => {
               if (e) e.stopPropagation();
               const closing = p.status === 'aktiv';
