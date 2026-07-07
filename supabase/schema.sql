@@ -15,11 +15,12 @@ create table public.profiles (
 
 create table public.polls (
   id uuid primary key default gen_random_uuid(),
-  type text not null check (type in ('flervalg', 'skala', 'gjett')),
+  type text not null check (type in ('flervalg', 'skala', 'gjett', 'duell')),
   status text not null default 'aktiv' check (status in ('aktiv', 'lukket')),
   tittel text not null,
   bilde_url text,
-  options jsonb,                    -- flervalg: ["Alt A", "Alt B", ...]
+  options jsonb,                    -- flervalg/duell: ["Alt A", "Alt B", ...]
+  option_images jsonb,             -- duell: ["url til A", "url til B"] (samme rekkefølge som options)
   skala_lo text,                    -- skala: etikett for 1
   skala_hi text,                    -- skala: etikett for 10
   enhet text,                       -- gjett: f.eks. "kopper"
