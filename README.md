@@ -35,9 +35,11 @@ Det som gjenstår for at det skal virke:
 - Innlogging: `signInWithPassword`; finnes ikke brukeren, opprettes den med `signUp` (fornavn autogenereres og lagres i `user_metadata`, profil-raden lages av trigger).
 - Førstegangsregistrering (avdeling/fødselsår/kjønn) → `update` på `profiles`.
 - Svar → `insert` i `responses`; «én stemme per bruker» håndheves av unique-constrainten `(poll_id, user_id)`.
-- Admin: publiser/lukk/gjenåpne undersøkelser (`polls`), skriv «funn»-tekst ved lukking, live-liste over innkomne svar (auto-oppdateres hvert 8. sek), rediger brukere (`profiles`) og send tilbakestilling av passord (`resetPasswordForEmail`).
+- Admin: publiser/lukk/gjenåpne/**slett** undersøkelser (`polls`), skriv «funn»-tekst ved lukking, live-liste over innkomne svar (auto-oppdateres hvert 8. sek), rediger brukere (`profiles`) og send tilbakestilling av passord (`resetPasswordForEmail`). Sletting fjerner også alle tilhørende svar (cascade).
 
-### Bilder på undersøkelser
-Lim inn en offentlig bilde-URL i «Bilde-URL»-feltet når du oppretter en undersøkelse. Vil du laste opp bilder direkte: lag en public Storage-bucket i Supabase og lim inn den offentlige URL-en, eller be om at opplasting bygges inn med `supabase.storage`.
+### Bilder på undersøkelser (opplasting + beskjæring)
+Du kan enten lime inn en offentlig bilde-URL, eller trykke **«Last opp»** ved bildefeltet. Da åpnes en beskjærer der du drar og zoomer bildet innenfor et kvadratisk utsnitt (perfekt for å sentrere portretter selv fra et 16:9-bilde). Utsnittet lastes opp til Supabase Storage som en kvadratisk JPG, og URL-en fylles inn automatisk. Gjelder alle typer – også begge alternativene i en Duell.
+
+**Engangsoppsett for opplasting:** kjør `supabase/storage.sql` i SQL Editor. Den lager en public bucket `poll-images` og policyer (alle kan se bildene, innloggede kan laste opp). Uten dette feiler opplasting.
 
 Admin er `holmen@consort.no` (flagget `is_admin` settes automatisk for den adressen).

@@ -250,12 +250,12 @@
           <sc-if value="{{ poll.isD }}">
             <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center">
               <div onClick="{{ poll.duelA.pick }}" style="display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:3px solid {{ poll.duelA.bc }};background:{{ poll.duelA.bg }};cursor:pointer;transition:all 0.2s ease-out" style-hover="transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)">
-                <div style="aspect-ratio:4/3;background-color:#EDEDED;background-size:cover;background-position:center;background-image:{{ poll.duelA.img }}"></div>
+                <div style="aspect-ratio:1/1;background-color:#EDEDED;background-size:cover;background-position:center;background-image:{{ poll.duelA.img }}"></div>
                 <div style="padding:14px;text-align:center;font-family:var(--font-display);font-weight:800;font-size:18px;color:#0D0D0D">{{ poll.duelA.label }}</div>
               </div>
               <div style="font-family:var(--font-display);font-weight:900;font-size:20px;color:#0D0D0D;background:#FFC335;width:52px;height:52px;border-radius:9999px;display:flex;align-items:center;justify-content:center;flex-shrink:0">VS</div>
               <div onClick="{{ poll.duelB.pick }}" style="display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:3px solid {{ poll.duelB.bc }};background:{{ poll.duelB.bg }};cursor:pointer;transition:all 0.2s ease-out" style-hover="transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)">
-                <div style="aspect-ratio:4/3;background-color:#EDEDED;background-size:cover;background-position:center;background-image:{{ poll.duelB.img }}"></div>
+                <div style="aspect-ratio:1/1;background-color:#EDEDED;background-size:cover;background-position:center;background-image:{{ poll.duelB.img }}"></div>
                 <div style="padding:14px;text-align:center;font-family:var(--font-display);font-weight:800;font-size:18px;color:#0D0D0D">{{ poll.duelB.label }}</div>
               </div>
             </div>
@@ -291,14 +291,14 @@
           <div style="background:#0D0D0D;border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:20px">
             <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center">
               <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
-                <div style="width:100%;aspect-ratio:4/3;border-radius:10px;background-color:#2E2E2E;background-size:cover;background-position:center;background-image:{{ res.duel.a.img }};border:3px solid {{ res.duel.a.bc }};box-sizing:border-box"></div>
+                <div style="width:100%;aspect-ratio:1/1;border-radius:10px;background-color:#2E2E2E;background-size:cover;background-position:center;background-image:{{ res.duel.a.img }};border:3px solid {{ res.duel.a.bc }};box-sizing:border-box"></div>
                 <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#FFFFFF;text-align:center">{{ res.duel.a.label }}</div>
                 <div style="font-family:var(--font-display);font-weight:900;font-size:42px;line-height:1;color:{{ res.duel.a.pctColor }}">{{ res.duel.a.pct }} %</div>
                 <div style="font-size:12px;color:#9A9A9A">{{ res.duel.a.count }} stemmer</div>
               </div>
               <div style="font-family:var(--font-display);font-weight:900;font-size:28px;color:#FFC335">VS</div>
               <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
-                <div style="width:100%;aspect-ratio:4/3;border-radius:10px;background-color:#2E2E2E;background-size:cover;background-position:center;background-image:{{ res.duel.b.img }};border:3px solid {{ res.duel.b.bc }};box-sizing:border-box"></div>
+                <div style="width:100%;aspect-ratio:1/1;border-radius:10px;background-color:#2E2E2E;background-size:cover;background-position:center;background-image:{{ res.duel.b.img }};border:3px solid {{ res.duel.b.bc }};box-sizing:border-box"></div>
                 <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#FFFFFF;text-align:center">{{ res.duel.b.label }}</div>
                 <div style="font-family:var(--font-display);font-weight:900;font-size:42px;line-height:1;color:{{ res.duel.b.pctColor }}">{{ res.duel.b.pct }} %</div>
                 <div style="font-size:12px;color:#9A9A9A">{{ res.duel.b.count }} stemmer</div>
@@ -491,6 +491,9 @@
                   <input type="text" placeholder="«Nyere forskning viser …» (vises når du lukker)" value="{{ p.funnVal }}" onChange="{{ p.setFunn }}" onClick="{{ p.stop }}" style="padding:9px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75">
                   <div style="display:flex;gap:8px">
                     <button onClick="{{ p.toggle }}" style="padding:7px 14px;border-radius:8px;border:1px solid #0D0D0D;background:#FFFFFF;color:#0D0D0D;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:#0D0D0D;color:#FFFFFF">{{ p.toggleTxt }}</button>
+                    <sc-if value="{{ p.canDelete }}">
+                      <button onClick="{{ p.del }}" style="padding:7px 14px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;color:#6B6B6B;font-size:13px;font-weight:700;cursor:pointer" style-hover="border-color:#0D0D0D;background:#0D0D0D;color:#FFFFFF">Slett</button>
+                    </sc-if>
                   </div>
                 </div>
               </sc-for>
@@ -526,7 +529,19 @@
                   <option value="gjett">Gjettekonkurranse (tall)</option>
                 </select>
                 <sc-if value="{{ admin.npNotDuel }}">
-                  <input type="text" placeholder="Bilde-URL (valgfritt)" value="{{ admin.npBilde }}" onChange="{{ admin.setNpBilde }}" style="padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;gap:8px">
+                      <input type="text" placeholder="Bilde-URL (valgfritt)" value="{{ admin.npBilde }}" onChange="{{ admin.setNpBilde }}" style="flex:1;padding:11px 14px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
+                      <label style="display:flex;align-items:center;gap:6px;padding:0 14px;border-radius:8px;border:1px solid #0BCD75;background:rgba(11,205,117,0.08);color:#0D0D0D;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:rgba(11,205,117,0.16)">Last opp<input type="file" accept="image/*" onChange="{{ admin.pickBilde }}" style="display:none"></label>
+                    </div>
+                    <sc-if value="{{ admin.hasBilde }}">
+                      <div style="display:flex;align-items:center;gap:10px">
+                        <img src="{{ admin.npBilde }}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #E0E0E0">
+                        <div style="font-size:12px;color:#0BCD75;font-weight:600;flex:1">Bilde valgt</div>
+                        <button onClick="{{ admin.clearBilde }}" style="border:none;background:transparent;color:#9A9A9A;font-size:12px;font-weight:600;cursor:pointer" style-hover="color:#0D0D0D">Fjern</button>
+                      </div>
+                    </sc-if>
+                  </div>
                 </sc-if>
                 <sc-if value="{{ admin.npIsD }}">
                   <div style="display:flex;flex-direction:column;gap:10px">
@@ -534,12 +549,20 @@
                       <div style="width:52px;height:24px;border-radius:9999px;background:#0BCD75;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">A</div>
                       <input type="text" placeholder="Alternativ A (f.eks. Bringebær)" value="{{ admin.npOptA }}" onChange="{{ admin.setNpOptA }}" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
                     </div>
-                    <input type="text" placeholder="Bilde-URL for A" value="{{ admin.npImgA }}" onChange="{{ admin.setNpImgA }}" style="padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75;margin-left:62px">
+                    <div style="display:flex;gap:8px;margin-left:62px">
+                      <input type="text" placeholder="Bilde-URL for A" value="{{ admin.npImgA }}" onChange="{{ admin.setNpImgA }}" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75">
+                      <label style="display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1px solid #0BCD75;background:rgba(11,205,117,0.08);color:#0D0D0D;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:rgba(11,205,117,0.16)">Last opp<input type="file" accept="image/*" onChange="{{ admin.pickImgA }}" style="display:none"></label>
+                    </div>
+                    <sc-if value="{{ admin.hasImgA }}"><img src="{{ admin.npImgA }}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #E0E0E0;margin-left:62px"></sc-if>
                     <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
                       <div style="width:52px;height:24px;border-radius:9999px;background:#0C8BE2;color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">B</div>
                       <input type="text" placeholder="Alternativ B (f.eks. Jordbær)" value="{{ admin.npOptB }}" onChange="{{ admin.setNpOptB }}" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:14px;outline-color:#0BCD75">
                     </div>
-                    <input type="text" placeholder="Bilde-URL for B" value="{{ admin.npImgB }}" onChange="{{ admin.setNpImgB }}" style="padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75;margin-left:62px">
+                    <div style="display:flex;gap:8px;margin-left:62px">
+                      <input type="text" placeholder="Bilde-URL for B" value="{{ admin.npImgB }}" onChange="{{ admin.setNpImgB }}" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid #E0E0E0;font-size:13px;outline-color:#0BCD75">
+                      <label style="display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1px solid #0C8BE2;background:rgba(12,139,226,0.08);color:#0D0D0D;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:rgba(12,139,226,0.16)">Last opp<input type="file" accept="image/*" onChange="{{ admin.pickImgB }}" style="display:none"></label>
+                    </div>
+                    <sc-if value="{{ admin.hasImgB }}"><img src="{{ admin.npImgB }}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #E0E0E0;margin-left:62px"></sc-if>
                   </div>
                 </sc-if>
                 <sc-if value="{{ admin.npIsF }}">
@@ -606,6 +629,30 @@
       </main>
     </sc-if>
 
+    <sc-if value="{{ cropOpen }}">
+      <div style="position:fixed;inset:0;background:rgba(13,13,13,0.7);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ crop.close }}">
+        <div style="background:#FFFFFF;border-radius:12px;padding:28px;width:360px;max-width:100%;display:flex;flex-direction:column;gap:18px;box-shadow:0 8px 32px rgba(0,0,0,0.15)" onClick="{{ crop.stop }}">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:800;font-size:20px;color:#0D0D0D">Beskjær bildet</div>
+            <div style="font-size:13px;color:#6B6B6B;margin-top:4px">Dra for å flytte, bruk glidebryteren for å zoome. Utsnittet lagres kvadratisk.</div>
+          </div>
+          <div style="width:300px;height:300px;max-width:100%;margin:0 auto;position:relative;overflow:hidden;border-radius:10px;background:#EDEDED;touch-action:none;cursor:grab" onPointerDown="{{ crop.down }}">
+            <img src="{{ crop.src }}" alt="" draggable="false" style="position:absolute;left:0;top:0;width:{{ crop.w }};transform:{{ crop.tf }};user-select:none;pointer-events:none;-webkit-user-drag:none">
+            <div style="position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.6);border-radius:10px;pointer-events:none"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:16px;color:#9A9A9A">－</span>
+            <input type="range" min="1" max="3" step="0.01" value="{{ crop.zoom }}" onChange="{{ crop.setZoom }}" onInput="{{ crop.setZoom }}" style="flex:1;cursor:pointer">
+            <span style="font-size:18px;color:#9A9A9A">＋</span>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button onClick="{{ crop.close }}" style="flex:1;padding:12px;border-radius:8px;border:1px solid #E0E0E0;background:#FFFFFF;color:#4A4A4A;font-weight:700;font-size:14px;cursor:pointer" style-hover="border-color:#0D0D0D;color:#0D0D0D">Avbryt</button>
+            <button onClick="{{ crop.apply }}" style="flex:2;padding:12px;border:none;border-radius:8px;background:{{ crop.btnBg }};color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:14px;cursor:pointer" style-hover="filter:brightness(1.1)">{{ crop.btnTxt }}</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ hasToast }}">
       <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0D0D0D;color:#FFFFFF;padding:14px 26px;border-radius:9999px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:50;font-size:14px;font-weight:600;white-space:nowrap">{{ toast }}</div>
     </sc-if>
@@ -631,6 +678,7 @@ class Component extends DCLogic {
       obAvd: '', obAar: '', obKjonn: '',
       npTittel: '', npType: 'flervalg', npOptions: '', npEnhet: '', npFasit: '', npBilde: '',
       npOptA: '', npOptB: '', npImgA: '', npImgB: '',
+      cropOpen: false, cropTarget: '', cropUploading: false, crop: { tx: 0, ty: 0, zoom: 1, s0: 1, w0: 0, h0: 0 },
       toast: ''
     };
   }
@@ -716,6 +764,22 @@ class Component extends DCLogic {
       : { label: 'KONKURRANSE', bg: '#FFC335', fg: '#0D0D0D' };
   }
   fmtValue(p, v) { return (p.type === 'flervalg' || p.type === 'duell') ? (p.options || [])[v] : p.type === 'skala' ? v + ' av 10' : v + ' ' + (p.enhet || ''); }
+
+  get CROP_V() { return 300; }
+  get CROP_OUT() { return 640; }
+  clampPan(tx, ty, c) {
+    const s = c.s0 * c.zoom, w = c.w0 * s, h = c.h0 * s;
+    return { tx: Math.min(0, Math.max(this.CROP_V - w, tx)), ty: Math.min(0, Math.max(this.CROP_V - h, ty)) };
+  }
+  loadFile(file) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file);
+      const im = new Image();
+      im.onload = () => res({ im, url });
+      im.onerror = rej;
+      im.src = url;
+    });
+  }
   segments(dim) {
     if (dim === 'avdeling') return [{ key: 'Trondheim', label: 'Trondheim' }, { key: 'Oslo', label: 'Oslo' }, { key: 'Göteborg', label: 'Göteborg' }];
     if (dim === 'kjonn') return [{ key: 'K', label: 'Kvinner' }, { key: 'M', label: 'Menn' }];
@@ -883,6 +947,65 @@ class Component extends DCLogic {
       }
     }
 
+    const pickFile = target => async e => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      if (!this.sb) { this.showToast('Ikke koblet til Supabase.'); return; }
+      const { im, url } = await this.loadFile(f);
+      if (this._cropUrl) URL.revokeObjectURL(this._cropUrl);
+      this._cropImg = im; this._cropUrl = url;
+      const s0 = Math.max(this.CROP_V / im.naturalWidth, this.CROP_V / im.naturalHeight);
+      const base = { s0, zoom: 1, w0: im.naturalWidth, h0: im.naturalHeight };
+      const p = this.clampPan((this.CROP_V - im.naturalWidth * s0) / 2, (this.CROP_V - im.naturalHeight * s0) / 2, base);
+      this.setState({ cropOpen: true, cropTarget: target, cropUploading: false, crop: { ...base, tx: p.tx, ty: p.ty } });
+    };
+    const cropDown = e => {
+      e.preventDefault();
+      const start = { sx: e.clientX, sy: e.clientY, tx0: this.state.crop.tx, ty0: this.state.crop.ty };
+      const mv = ev => {
+        const c = this.state.crop;
+        const p = this.clampPan(start.tx0 + (ev.clientX - start.sx), start.ty0 + (ev.clientY - start.sy), c);
+        this.setState({ crop: { ...c, tx: p.tx, ty: p.ty } });
+      };
+      const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); };
+      document.addEventListener('pointermove', mv);
+      document.addEventListener('pointerup', up);
+    };
+    const cropZoom = e => {
+      const z = Number(e.target.value), c = S.crop, sOld = c.s0 * c.zoom, sNew = c.s0 * z;
+      const cx = (this.CROP_V / 2 - c.tx) / sOld, cy = (this.CROP_V / 2 - c.ty) / sOld;
+      const p = this.clampPan(this.CROP_V / 2 - cx * sNew, this.CROP_V / 2 - cy * sNew, { ...c, zoom: z });
+      this.setState({ crop: { ...c, zoom: z, tx: p.tx, ty: p.ty } });
+    };
+    const cropClose = () => {
+      if (this._cropUrl) { URL.revokeObjectURL(this._cropUrl); this._cropUrl = null; }
+      this._cropImg = null;
+      this.setState({ cropOpen: false, cropUploading: false });
+    };
+    const applyCrop = async () => {
+      const c = S.crop, im = this._cropImg;
+      if (!im) return;
+      this.setState({ cropUploading: true });
+      const OUT = this.CROP_OUT, s = c.s0 * c.zoom;
+      const srcX = (0 - c.tx) / s, srcY = (0 - c.ty) / s, srcSize = this.CROP_V / s;
+      const canvas = document.createElement('canvas');
+      canvas.width = OUT; canvas.height = OUT;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#EDEDED'; ctx.fillRect(0, 0, OUT, OUT);
+      ctx.drawImage(im, srcX, srcY, srcSize, srcSize, 0, 0, OUT, OUT);
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.9));
+      const path = Date.now() + '-' + Math.random().toString(36).slice(2) + '.jpg';
+      const up = await this.sb.storage.from('poll-images').upload(path, blob, { contentType: 'image/jpeg' });
+      if (up.error) { this.setState({ cropUploading: false }); this.showToast('Opplasting feilet: ' + up.error.message); return; }
+      const url = this.sb.storage.from('poll-images').getPublicUrl(path).data.publicUrl;
+      const key = S.cropTarget === 'bilde' ? 'npBilde' : S.cropTarget === 'imgA' ? 'npImgA' : 'npImgB';
+      if (this._cropUrl) { URL.revokeObjectURL(this._cropUrl); this._cropUrl = null; }
+      this._cropImg = null;
+      this.setState({ [key]: url, cropOpen: false, cropUploading: false });
+      this.showToast('Bilde lastet opp og beskåret.');
+    };
+
     let admin = null;
     if (me && me.admin) {
       const selP = this.pollById(S.adminSelId) || S.polls[0];
@@ -906,6 +1029,7 @@ class Component extends DCLogic {
             funnVal: S.funnDrafts[p.id] !== undefined ? S.funnDrafts[p.id] : (p.funn || ''),
             setFunn: e => this.setState({ funnDrafts: { ...S.funnDrafts, [p.id]: e.target.value } }),
             toggleTxt: p.status === 'aktiv' ? 'Lukk og publiser funn' : 'Gjenåpne',
+            canDelete: p.status === 'lukket',
             toggle: async e => {
               if (e) e.stopPropagation();
               const closing = p.status === 'aktiv';
@@ -915,6 +1039,15 @@ class Component extends DCLogic {
               if (error) { this.showToast('Kunne ikke oppdatere: ' + error.message); return; }
               await this.loadData();
               this.showToast(closing ? 'Undersøkelsen er lukket; funnene er publisert!' : 'Undersøkelsen er gjenåpnet.');
+            },
+            del: async e => {
+              if (e) e.stopPropagation();
+              if (!window.confirm('Slette «' + p.tittel + '» og alle svar for godt? Dette kan ikke angres.')) return;
+              const { error } = await this.sb.from('polls').delete().eq('id', p.id);
+              if (error) { this.showToast('Kunne ikke slette: ' + error.message); return; }
+              await this.loadData();
+              this.setState({ adminSelId: this.state.adminSelId === p.id ? null : this.state.adminSelId });
+              this.showToast('Undersøkelsen er slettet.');
             }
           };
         }),
@@ -935,6 +1068,9 @@ class Component extends DCLogic {
         npFasit: S.npFasit, setNpFasit: set('npFasit'),
         npOptA: S.npOptA, setNpOptA: set('npOptA'), npOptB: S.npOptB, setNpOptB: set('npOptB'),
         npImgA: S.npImgA, setNpImgA: set('npImgA'), npImgB: S.npImgB, setNpImgB: set('npImgB'),
+        pickBilde: pickFile('bilde'), pickImgA: pickFile('imgA'), pickImgB: pickFile('imgB'),
+        clearBilde: () => this.setState({ npBilde: '' }), clearImgA: () => this.setState({ npImgA: '' }), clearImgB: () => this.setState({ npImgB: '' }),
+        hasBilde: !!S.npBilde, hasImgA: !!S.npImgA, hasImgB: !!S.npImgB,
         publish: async () => {
           if (!S.npTittel.trim()) { this.showToast('Studien trenger en tittel.'); return; }
           const opts = S.npOptions.split('\n').map(x => x.trim()).filter(Boolean);
@@ -1031,7 +1167,17 @@ class Component extends DCLogic {
       poll: pollVM, res, admin,
       skalaVal: S.draftSkala, setSkala: set('draftSkala'),
       gjettVal: S.draftGjett, setGjett: set('draftGjett'),
-      toast: S.toast, hasToast: !!S.toast
+      toast: S.toast, hasToast: !!S.toast,
+      cropOpen: S.cropOpen,
+      crop: S.cropOpen ? {
+        src: this._cropUrl,
+        tf: 'translate(' + S.crop.tx + 'px,' + S.crop.ty + 'px)',
+        w: (S.crop.w0 * S.crop.s0 * S.crop.zoom) + 'px',
+        zoom: S.crop.zoom, setZoom: cropZoom, down: cropDown,
+        apply: applyCrop, close: cropClose, stop: e => { if (e) e.stopPropagation(); }, uploading: S.cropUploading,
+        btnTxt: S.cropUploading ? 'Laster opp …' : 'Bruk bildet',
+        btnBg: S.cropUploading ? '#C4C4C4' : 'linear-gradient(90deg,#0BCD75,#0C8BE2)'
+      } : null
     };
   }
 }
