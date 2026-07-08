@@ -447,6 +447,25 @@
       </main>
     </sc-if>
 
+    <sc-if value="{{ isTakk }}">
+      <main data-screen-label="Takk for bidraget" style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px 96px">
+        <div style="max-width:540px;width:100%;background:#0D0D0D;border-radius:16px;padding:56px 44px;text-align:center;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+          <img src="assets/dots-tripptrapp.png" alt="" style="position:absolute;top:-30px;right:-30px;width:170px;opacity:0.7">
+          <div style="position:relative;display:flex;flex-direction:column;gap:16px;align-items:center">
+            <div style="width:64px;height:64px;border-radius:9999px;background:linear-gradient(135deg,#0BCD75,#0C8BE2);display:flex;align-items:center;justify-content:center">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div style="font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#0BCD75">Svar registrert</div>
+            <div style="font-family:var(--font-display);font-weight:900;font-size:32px;line-height:1.15;letter-spacing:-0.03em;color:#FFFFFF;max-width:420px">Takk for ditt bidrag til forskning og utvikling!</div>
+            <div style="display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;justify-content:center">
+              <button onClick="{{ takk.back }}" style="padding:14px 26px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:transparent;color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:15px;cursor:pointer;transition:all 0.2s ease-out" style-hover="border-color:#FFFFFF;background:rgba(255,255,255,0.08)" style-active="transform:translateY(1px) scale(0.98)">Tilbake</button>
+              <button onClick="{{ takk.next }}" style="padding:14px 26px;border:none;border-radius:8px;background:linear-gradient(90deg,#0BCD75,#0C8BE2);color:#FFFFFF;font-family:var(--font-display);font-weight:800;font-size:15px;cursor:pointer;transition:all 0.2s ease-out;box-shadow:0 4px 20px rgba(11,205,117,0.25)" style-hover="filter:brightness(1.1);transform:translateY(-2px)" style-active="transform:translateY(1px) scale(0.98)">Neste undersøkelse</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </sc-if>
+
     <sc-if value="{{ isFunn }}">
       <main data-screen-label="Sånn er Consort" style="max-width:840px;width:100%;box-sizing:border-box;margin:0 auto;padding:56px 24px 96px">
         <div style="font-size:13px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#0C8BE2">Akkumulert vitenskap</div>
@@ -828,9 +847,11 @@ class Component extends DCLogic {
       await this.afterLogin(su.user);
     };
 
+    const isAdminUser = !!(me && me.admin);
     const openPoll = p => () => {
       const answered = S.answered[p.id] || p.svar.some(s => s.u === S.userId);
-      if (p.status === 'lukket' || answered) this.setState({ screen: 'results', activePollId: p.id, breakdown: 'alle' });
+      if (p.status === 'lukket') this.setState({ screen: 'results', activePollId: p.id, breakdown: 'alle' });
+      else if (answered) this.setState({ screen: isAdminUser ? 'results' : 'takk', activePollId: p.id, breakdown: 'alle' });
       else this.setState({ screen: 'poll', activePollId: p.id, draftOpt: null, draftSkala: 5, draftGjett: '' });
     };
 
@@ -867,13 +888,14 @@ class Component extends DCLogic {
         })),
         submit: async () => {
           if (!can) return;
-          if (P.svar.some(s => s.u === S.userId)) { this.showToast('Du har allerede svart på denne; én stemme per forsker.'); this.setState({ screen: 'results', breakdown: 'alle' }); return; }
+          const doneScreen = isAdminUser ? 'results' : 'takk';
+          if (P.svar.some(s => s.u === S.userId)) { this.showToast('Du har allerede svart på denne; én stemme per forsker.'); this.setState({ screen: doneScreen, breakdown: 'alle' }); return; }
           const v = (P.type === 'flervalg' || P.type === 'duell') ? S.draftOpt : P.type === 'skala' ? Number(S.draftSkala) : Number(S.draftGjett);
           if (P.type === 'gjett' && !Number.isFinite(v)) return;
           const { error } = await this.sb.from('responses').insert({ poll_id: P.id, user_id: S.userId, verdi: v });
           await this.loadData();
-          if (error) { this.showToast(/duplicate|unique/i.test(error.message) ? 'Du har allerede svart på denne.' : 'Kunne ikke lagre: ' + error.message); this.setState({ screen: 'results', breakdown: 'alle' }); return; }
-          this.setState({ answered: { ...S.answered, [P.id]: true }, screen: 'results', breakdown: 'alle' });
+          if (error) { this.showToast(/duplicate|unique/i.test(error.message) ? 'Du har allerede svart på denne.' : 'Kunne ikke lagre: ' + error.message); this.setState({ screen: doneScreen, breakdown: 'alle' }); return; }
+          this.setState({ answered: { ...S.answered, [P.id]: true }, screen: doneScreen, breakdown: 'alle' });
           this.showToast('Svar registrert. Takk for ditt bidrag til vitenskapen!');
         }
       };
@@ -1185,6 +1207,15 @@ class Component extends DCLogic {
       isFunn: S.screen === 'funn', goFunn: nav('funn'), funnListe,
       isHome: S.screen === 'home', isPoll: S.screen === 'poll' && !!pollVM,
       isResults: S.screen === 'results' && !!res, isAdmin: S.screen === 'admin' && !!admin,
+      isTakk: S.screen === 'takk',
+      takk: {
+        back: nav('home'),
+        next: () => {
+          const nxt = S.polls.find(p => p.status === 'aktiv' && !(S.answered[p.id] || p.svar.some(s => s.u === S.userId)));
+          if (nxt) this.setState({ screen: 'poll', activePollId: nxt.id, draftOpt: null, draftSkala: 5, draftGjett: '' });
+          else this.setState({ screen: 'home' });
+        }
+      },
       loginEmail: S.loginEmail, loginPass: S.loginPass,
       setLoginEmail: set('loginEmail'), setLoginPass: set('loginPass'),
       doLogin, loginKey: e => { if (e.key === 'Enter') doLogin(); },
